@@ -509,21 +509,22 @@ def plan_question(question: str, data: ProjectData = project_data) -> Optional[P
     is_forecast = bool(FORECAST_WORDS.search(t))
     is_overview = bool(OVERVIEW_WORDS.search(t))
     relative = bool(RELATIVE_DAY.search(t)) or (not periods and re.search(r"(?<!\w)اليوم(?!\w)", t) is not None
-                                                and not re.search(r"(?<!\w)(اي|ايش|شو|اكثر|اعلى|اقل)\s*يوم", t))
+                                                and not re.search(r"(?<!\w)(اي|ايش|شو|اكثر|اعلي|اقل)\s*يوم", t))
 
     # Rank questions: "which day...", "أي يوم ..."
     rank_unit = None
     m = re.search(r"\b(?:which|what)\s+(day|date|month|hour|time of day|time|building|year|week)", t) or \
         re.search(r"\btop\s+\d*\s*(days?|months?|hours?|buildings?)", t) or \
         re.search(r"\b(?:highest|lowest|busiest|quietest|peak|most|least)\s+(day|month|hour|building|year)", t) or \
-        re.search(r"(?<!\w)(?:اي|ايش|شو|ما هو|ما هي|انهي|وين)\s*(?:هو\s*|هي\s*)?(ال)?(يوم|تاريخ|شهر|ساعه|مبنى|المبنى|سنه)", t) or \
-        re.search(r"(?<!\w)(?:اكثر|اعلى|اقل|ادنى)\s*(ال)?(يوم|شهر|ساعه|مبنى|سنه)", t)
+        re.search(r"(?<!\w)(?:اي|ايش|شو|ما هو|ما هي|انهي|وين)\s*(?:هو\s*|هي\s*)?(ال)?(يوم|تاريخ|شهر|ساعه|مبني|المبني|سنه)", t) or \
+        re.search(r"(?<!\w)(?:اكثر|اعلي|اقل|ادني)\s*(?:\d{1,2}\s*)?(ال)?(يوم|ايام|شهر|اشهر|شهور|ساعه|ساعات|مبني|مباني|سنه)", t)
     if m:
         word = m.group(m.lastindex or 1) or ""
         word = word.rstrip("s")
         rank_unit = {"date": "day", "time": "hour", "time of day": "hour", "week": "day",
-                     "يوم": "day", "تاريخ": "day", "شهر": "month", "ساعه": "hour", "مبنى": "building",
-                     "المبنى": "building", "سنه": "year"}.get(word, word)
+                     "يوم": "day", "تاريخ": "day", "شهر": "month", "ساعه": "hour", "مبني": "building",
+                     "المبني": "building", "سنه": "year",
+                     "ايام": "day", "اشهر": "month", "شهور": "month", "ساعات": "hour", "مباني": "building"}.get(word, word)
         if rank_unit not in {"day", "month", "hour", "building", "year"}:
             rank_unit = None
 
@@ -535,6 +536,10 @@ def plan_question(question: str, data: ProjectData = project_data) -> Optional[P
                  r"(role|purpose|difference|meaning|concept|definition)|what does|define)\b", t)
         or re.match(r"\s*(لماذا|ليش|ليه|كيف|اشرح|وضح|ما (هو|هي) (دور|الفرق|معنى|مفهوم))", t)
     )
+    conceptual = conceptual or bool(
+        re.search(r"(?<!\w)(?:[وبلف])?(اسباب|سبب|ليش|لماذا|ليه|كيف|يعني|معني|تعريف|اشرح|وضح|الفرق|فرق|فكره|مبدا)(?!\w)", t)
+        or re.search(r"\b(causes?|reasons?|why|explain|meaning|difference between)\b", t)
+    )
     if conceptual and not (periods or rank_unit or buildings or relative):
         return None
     data_cue = bool(has_metric or buildings or is_event or is_action or is_forecast or rank_unit
@@ -545,7 +550,7 @@ def plan_question(question: str, data: ProjectData = project_data) -> Optional[P
         or (quant and (has_metric or buildings))
         or (buildings and has_metric)
         or (is_event and (quant or periods))
-        or (is_action and quant)
+        or (is_action and re.search(r"rate|success|succeed|how many|count|percent|underperform|نسبه|نجاح|نجح|عدد|كم|قديش|فشل", t))
         or (is_forecast and (quant or re.search(r"accura|mae|mape|دقه|خطا", t))
             and (weak_energy or "energy" in metrics or re.search(r"model|forecast|نموذج|موديل|تنبؤ", t)))
         or is_overview
@@ -571,7 +576,7 @@ def plan_question(question: str, data: ProjectData = project_data) -> Optional[P
     else:
         intent = "summary"
 
-    top = re.search(r"\btop\s+(\d{1,2})\b|(?<!\w)(?:اعلى|اكثر|اقل|ادنى)\s+(\d{1,2})(?!\d)", t)
+    top = re.search(r"\btop\s+(\d{1,2})\b|(?<!\w)(?:اعلي|اكثر|اقل|ادني)\s+(\d{1,2})(?!\d)", t)
     top_n = int(top.group(1) or top.group(2)) if top else 5
     rank_dir = "min" if MIN_WORDS.search(t) and not (MAX_WORDS.search(t) and
                                                      MAX_WORDS.search(t).start() < MIN_WORDS.search(t).start()) else "max"

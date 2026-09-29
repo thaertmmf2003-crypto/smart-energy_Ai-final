@@ -1,3 +1,40 @@
+# Arabic everywhere + Arabic knowledge assistant + clearer stage names (light mode)
+
+## Complete Arabic interface (static/js/i18n_ar.js — new)
+The old i18n only translated elements with a data-i18n key; Overview, Operations,
+Energy, Digital Twin, Verification, Knowledge and Activity had none, and nothing
+rendered by app.js could be translated. i18n_ar.js translates every text node,
+placeholder, title and aria-label, including text app.js writes later
+(MutationObserver): ~450 fixed strings plus patterns for dynamic sentences
+(scores, reductions, reasons, diagnosis, timeline, LIME rules, dates). Switching
+back to English restores the original text. Chart series names follow the language.
+Audit (all pages, idle / waiting / replan dialog / rejected / completed / LIME /
+knowledge answers): 827 untranslated strings before; after, only data remains
+(user names, file names, units, codes such as kW, HVAC, B001).
+The flowchart keeps left-to-right geometry in Arabic so labels stay in place.
+
+## Knowledge assistant understands Arabic
+- knowledge/energy_ar/: Arabic versions of the six knowledge documents.
+- rag_service.py: Arabic tokenizer (normalisation, prefix/suffix stripping,
+  stop-words), a second BM25 index for the Arabic documents, dialect synonyms.
+  Arabic questions are answered and quoted in Arabic even without an LLM.
+- data_qa.py: fixed Arabic ranking patterns ("أعلى / أدنى / مبنى" never matched
+  after normalisation), plural units ("أعلى 3 أيام"), explanation questions
+  ("أسباب / ليش / كيف / الفرق") go to the documents, action statistics need a
+  statistics word.
+- Operating policy (EN + AR) gained an "Agent workflow" section.
+- Quick-question buttons ask in the interface language.
+- test_arabic.py (new): 18 Arabic questions, formal and Levantine.
+
+## Light mode: operation (stage) names
+Stage names 9 → 12.5 px, bold, full-contrast; completed stages tinted with a ✓,
+the current stage outlined. The lifecycle fits on one row (11 columns, was 10).
+Flowchart node names in light mode no longer fade on pending nodes.
+
+Dark theme colours unchanged (verified element by element).
+
+---
+
 # Light mode: readable text contrast in every theme
 
 Measured WCAG contrast of every visible text element on 9 pages. Before, 30 %

@@ -50,6 +50,9 @@ else:
 
 BASE_DIR = Path(__file__).resolve().parent
 KNOWLEDGE_DIR = Path(os.getenv("RAG_KNOWLEDGE_DIR", BASE_DIR / "knowledge" / "energy"))
+# Arabic translations of the same documents, so Arabic questions are answered
+# (and quoted) in Arabic even without a language model.
+KNOWLEDGE_DIR_AR = Path(os.getenv("RAG_KNOWLEDGE_DIR_AR", BASE_DIR / "knowledge" / "energy_ar"))
 
 # Files that describe the knowledge base itself rather than energy topics.
 EXCLUDED_FILES = {"readme.md"}
@@ -96,9 +99,46 @@ def _stem(token: str) -> str:
     return token
 
 
+AR_STOPWORDS = set(
+    """
+    في من على الى عن ما ماذا كيف لماذا ليش ليه هل هو هي هم ان او و ثم كل هذا هذه ذلك تلك التي الذي الذين
+    مع عند قد كان كانت يكون تكون بين لا ليس شو ايش اي وين متى لما حتى اذا لو بعد قبل عندما لكن او ام
+    انه انها به بها له لها فيه فيها منه منها عليه عليها كما ايضا جدا فقط اكثر اقل يمكن يجب اللي بدي مين
+    """.split()
+)
+_AR_PREFIXES = ("وبال", "وال", "بال", "كال", "فال", "لل", "ال", "و", "ب", "ف", "ل")
+_AR_SUFFIXES = ("ات", "ون", "ين", "ان", "ها", "هم", "ه", "ي")
+_AR_DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")
+
+
+def _ar_norm(text: str) -> str:
+    t = text.translate(_AR_DIGITS)
+    t = re.sub(r"[\u0617-\u061A\u064B-\u0652\u0640]", "", t)
+    t = re.sub("[إأآٱ]", "ا", t)
+    return t.replace("ة", "ه").replace("ى", "ي")
+
+
+def _ar_stem(tok: str) -> str:
+    for p in _AR_PREFIXES:
+        if tok.startswith(p) and len(tok) - len(p) >= 3:
+            tok = tok[len(p):]
+            break
+    for suf in _AR_SUFFIXES:
+        if tok.endswith(suf) and len(tok) - len(suf) >= 3:
+            tok = tok[: -len(suf)]
+            break
+    return tok
+
+
 def tokenize(text: str) -> List[str]:
-    tokens = re.findall(r"[a-z0-9]+", text.lower())
-    return [_stem(t) for t in tokens if t not in STOPWORDS and len(t) > 1]
+    lowered = text.lower()
+    tokens = [_stem(t) for t in re.findall(r"[a-z0-9]+", lowered) if t not in STOPWORDS and len(t) > 1]
+    if re.search(r"[\u0600-\u06FF]", lowered):
+        for t in re.findall(r"[\u0621-\u064A]+", _ar_norm(lowered)):
+            if t in AR_STOPWORDS or len(t) < 2:
+                continue
+            tokens.append(_ar_stem(t))
+    return tokens
 
 
 # The documents are in English and BM25 matches words, so an Arabic question
@@ -134,6 +174,21 @@ ARABIC_TERMS = [
 ]
 
 
+# Colloquial / alternative Arabic words mapped to the wording of the Arabic documents.
+ARABIC_SYNONYMS = [
+    (r"فرق", "مقابل"), (r"بيشتغل|يشتغل|بتشتغل|تشتغل", "يعمل"), (r"بيختار|بختار", "يختار"),
+    (r"صرف|بيصرف|يصرف", "استهلاك"), (r"ليش|ليه", "لماذا سبب"),
+    (r"الشمسيه|شمسي|الواح", "الطاقه الشمسيه الكهروضوئيه"), (r"مكيف|تكييف", "التكييف"), (r"السيارات|سيارات|شحن", "شحن السيارات الكهربائيه"),
+    (r"الذروه|ذروه", "ذروه الطلب"), (r"وكيل|الايجنت", "الوكيل"),
+]
+
+
+def expand_arabic(question: str) -> str:
+    t = _ar_norm(question)
+    extra = [terms for pattern, terms in ARABIC_SYNONYMS if re.search(pattern, t)]
+    return f"{question} {' '.join(extra)}" if extra else question
+
+
 def expand_query(question: str) -> str:
     if not re.search(r"[\u0600-\u06FF]", question or ""):
         return question
@@ -157,7 +212,7 @@ def _split_sentences(text: str) -> List[str]:
             bullet.clear()
         if prose:
             joined = re.sub(r"\s+", " ", " ".join(prose)).strip()
-            sentences.extend(re.split(r"(?<=[.!?])\s+(?=[A-Z0-9])", joined))
+            sentences.extend(re.split(r"(?<=[.!?؟])\s+(?=[A-Z0-9\u0600-\u06FF])", joined))
             prose.clear()
 
     for line in text.splitlines():
@@ -432,11 +487,14 @@ def _call_llm(provider: str, model: str, user_prompt: str) -> str:
 
 
 class RAGService:
-    def __init__(self, knowledge_dir: Path = KNOWLEDGE_DIR):
+    def __init__(self, knowledge_dir: Path = KNOWLEDGE_DIR, knowledge_dir_ar: Path = KNOWLEDGE_DIR_AR):
         self.knowledge_dir = Path(knowledge_dir)
+        self.knowledge_dir_ar = Path(knowledge_dir_ar)
         self._lock = threading.Lock()
         self._index: Optional[BM25Index] = None
+        self._index_ar: Optional[BM25Index] = None
         self._documents: List[str] = []
+        self._documents_ar: List[str] = []
         self._load_error: Optional[str] = None
 
     # ------------------------------------------------------
@@ -463,6 +521,18 @@ class RAGService:
                 self._index = BM25Index(chunks)
                 self._documents = documents
                 self._load_error = None
+                # Arabic documents are optional: without them Arabic questions
+                # still reach the English index through expand_query().
+                self._index_ar, self._documents_ar = None, []
+                if self.knowledge_dir_ar.exists():
+                    ar_chunks: List[Chunk] = []
+                    for path in sorted(self.knowledge_dir_ar.rglob("*")):
+                        if path.is_file() and path.suffix.lower() in SUPPORTED_SUFFIXES \
+                                and path.name.lower() not in EXCLUDED_FILES:
+                            ar_chunks.extend(_chunk_markdown(path, start_id=len(ar_chunks)))
+                            self._documents_ar.append(path.name)
+                    if ar_chunks:
+                        self._index_ar = BM25Index(ar_chunks)
             except Exception as exc:  # noqa: BLE001 - reported, never raised
                 self._index = None
                 self._documents = []
@@ -486,6 +556,7 @@ class RAGService:
         return {
             "available": self._index is not None,
             "documents": list(self._documents),
+            "documents_ar": list(self._documents_ar),
             "chunks": len(self._index.chunks) if self._index else 0,
             "generation": "llm" if provider != "none" else "extractive",
             "provider": provider,
@@ -547,7 +618,10 @@ class RAGService:
             raise RuntimeError(f"Knowledge base unavailable: {self._load_error}")
         hits: List[tuple[Chunk, float]] = []
         if self._index is not None:
-            hits = [(c, sc) for c, sc in self._index.search(expand_query(question), top_k) if sc >= MIN_SCORE]
+            if arabic and self._index_ar is not None:
+                hits = [(c, sc) for c, sc in self._index_ar.search(expand_arabic(question), top_k) if sc >= MIN_SCORE]
+            if not hits:
+                hits = [(c, sc) for c, sc in self._index.search(expand_query(question), top_k) if sc >= MIN_SCORE]
         if data is not None:
             # The data answers the question; keep only documents that clearly add context.
             hits = [(c, sc) for c, sc in hits if sc >= DATA_DOC_MIN_SCORE][:DATA_DOC_MAX]

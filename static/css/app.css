@@ -1869,3 +1869,31 @@ body,.panel,.kpi-card,.sidebar,.topbar{transition:background-color .35s ease,bor
 [data-theme="light"] .badge-active{color:var(--success)}
 [data-theme="light"] .badge-inactive{color:var(--danger)}
 /* LIGHT-CONTRAST:END */
+
+/* Lifecycle: 11 steps fit on one row on wide screens (was 10 columns, so
+   "Complete" wrapped alone onto a second row). */
+@media (min-width:1101px){.lifecycle{grid-template-columns:repeat(11,1fr)}}
+
+/* Light mode: operation (stage) names clearly readable */
+[data-theme="light"] .life-step{background:var(--panel);border-color:color-mix(in srgb,var(--cream) 14%,transparent);min-height:80px}
+[data-theme="light"] .life-step span{font-size:10px;font-weight:800;color:var(--muted-2);letter-spacing:.06em}
+[data-theme="light"] .life-step b{font-size:12.5px;font-weight:800;color:var(--cream);line-height:1.25}
+[data-theme="light"] .life-step .life-time{font-size:9.5px;color:var(--muted);font-weight:600}
+[data-theme="light"] .life-step.done{background:var(--accent-bg);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+[data-theme="light"] .life-step.done b{color:var(--accent-strong)}
+[data-theme="light"] .life-step.done span::after{content:" ✓";color:var(--success)}
+[data-theme="light"] .life-step.active{background:var(--panel);border:2px solid var(--gold);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 14%,transparent)}
+[data-theme="light"] .life-step.active b{color:var(--cream)}
+[data-theme="light"] .life-step.failed b{color:var(--danger)}
+
+/* Light mode: flowchart node names never fade — pending nodes keep full-strength text */
+[data-theme="light"] .af-node.is-pending{opacity:1}
+[data-theme="light"] .af-node.is-pending .af-shape{stroke:color-mix(in srgb,var(--cream) 22%,transparent);stroke-dasharray:4 3}
+[data-theme="light"] .af-title{font-size:13px;font-weight:800;fill:var(--cream)}
+[data-theme="light"] .af-dtitle{font-weight:800;fill:var(--cream)}
+[data-theme="light"] .af-sub{fill:var(--muted);font-size:10px}
+
+/* The flowchart geometry is fixed left-to-right; in Arabic (dir=rtl) the browser
+   would otherwise flip text-anchor and push the stage numbers onto the arrows. */
+.af-svg{direction:ltr}
+[dir="rtl"] .af-svg text{unicode-bidi:plaintext}

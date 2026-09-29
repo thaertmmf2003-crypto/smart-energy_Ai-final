@@ -352,10 +352,20 @@
       Object.assign(chart.options.plugins.tooltip, pal.tooltip);
       chart.update("none");
     });
+    // Series names follow the interface language (tooltips are drawn on canvas).
+    const ar = document.documentElement.getAttribute("lang") === "ar" && window.trArabic;
+    Object.values(state.charts || {}).forEach(chart => {
+      if (!chart?.data) return;
+      chart.data.datasets.forEach(ds => {
+        ds.__en = ds.__en || ds.label;
+        ds.label = ar ? (window.trArabic(ds.__en) || ds.__en) : ds.__en;
+      });
+      chart.update("none");
+    });
     const legend = { consumption: pal.series.consumption.borderColor, solar: pal.series.solar.borderColor, hvac: pal.series.hvac.borderColor };
     $$(".ov-chart-legend i").forEach((el, i) => { el.style.background = Object.values(legend)[i]; });
   }
-  new MutationObserver(applyChartTheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-palette"] });
+  new MutationObserver(applyChartTheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-palette", "lang"] });
 
   async function buildChart(canvasId, data) {
     const canvas = document.getElementById(canvasId);
@@ -1702,7 +1712,11 @@
         e.preventDefault();
         askRag($("#rag-input")?.value.trim());
       });
-      $$(".quick-questions button").forEach(btn => btn.addEventListener("click", () => askRag(btn.dataset.question)));
+      // Quick questions are asked in the interface language.
+      $$(".quick-questions button").forEach(btn => btn.addEventListener("click", () => {
+        const ar = document.documentElement.getAttribute("lang") === "ar";
+        askRag(ar && btn.dataset.questionAr ? btn.dataset.questionAr : btn.dataset.question);
+      }));
       await loadAgent();
     } else if (page === "activity") {
       $("#reset-agent")?.addEventListener("click", async () => {

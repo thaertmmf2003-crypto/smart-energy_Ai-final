@@ -61,3 +61,15 @@ record (verification_by_action.csv). If no candidate remains, the agent stops.
 Evidence is read at the event hour: consumption, HVAC, occupancy and solar come
 from the reading at or just before the event timestamp, and the history covers
 the 24 hours up to the event.
+
+## Agent workflow (agent.py)
+The agent moves through eleven stages: MONITORING (receives an ML prediction
+event), INVESTIGATING (confirms it against ML prediction events), GATHERING_EVIDENCE
+(reads consumption, HVAC, occupancy, solar and grid status at the event hour),
+ANALYZING (loads the ML event context), FORECASTING (attaches the predicted load),
+SIMULATING (the digital twin simulates the candidate actions), VALIDATING (the
+optimizer checks constraints and scores the candidates), WAITING_FOR_APPROVAL
+(a human operator approves or rejects), EXECUTING (the approved action runs in
+simulation), VERIFYING (achieved reduction versus expected) and COMPLETED. If
+verification fails the agent enters REPLANNING and returns to WAITING_FOR_APPROVAL
+with an alternative. Any tool error moves it to FAILED.
