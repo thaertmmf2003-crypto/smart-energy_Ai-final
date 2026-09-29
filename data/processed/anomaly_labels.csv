@@ -1,0 +1,4 @@
+timestamp,building_id,anomaly_type,anomaly_description
+2016-07-01 18:00:00,B002,ENERGY_ANOMALY,Laboratory energy consumption significantly above expected baseline.
+2016-12-31 12:00:00,B001,SOLAR_UNDERPERFORMANCE,Solar generation significantly below expected production.
+2017-07-02 06:00:00,CAMPUS,PEAK_DEMAND_RISK,Campus demand approaching simulated grid import limit.

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create Account · Smart Energy AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/i18n_theme.js') }}"></script>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div style="position: absolute; top: 24px; right: 28px; display: flex; gap: 12px; z-index: 10;">
+      <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme(event)" title="Toggle Theme">☀️</button>
+      <button class="lang-toggle-btn" id="lang-toggle" onclick="toggleLanguage(event)" title="Toggle Language">العربية</button>
+    </div>
+
+    <div class="auth-card" style="max-width: 480px;">
+      <div class="auth-header">
+        <div class="auth-brand-mark">SE</div>
+        <h2 data-i18n="auth_register_title">Create Account</h2>
+        <p data-i18n="auth_register_sub">Register for Smart Energy AI platform access</p>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;">
+            {% for category, message in messages %}
+              <div class="flash-alert alert-{{ category }}" style="padding: 10px 14px; font-size: 12px;">
+                <span>{{ message }}</span>
+                <button type="button" class="alert-close" onclick="this.parentElement.remove()">×</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="username" data-i18n="auth_username_label">Username</label>
+          <div class="form-input-wrap">
+            <input type="text" id="username" name="username" class="form-input" value="{{ username or '' }}" placeholder="e.g. jdoe" required autofocus>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email" data-i18n="auth_email_label">Email Address</label>
+          <div class="form-input-wrap">
+            <input type="email" id="email" name="email" class="form-input" value="{{ email or '' }}" placeholder="e.g. jdoe@smartenergy.ai" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password" data-i18n="auth_password_label">Password</label>
+          <div class="form-input-wrap">
+            <input type="password" id="password" name="password" class="form-input" placeholder="Min. 6 characters" required>
+            <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('password', this)" title="Show/Hide Password">👁</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm_password" data-i18n="auth_confirm_password_label">Confirm Password</label>
+          <div class="form-input-wrap">
+            <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Repeat your password" required>
+            <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('confirm_password', this)" title="Show/Hide Password">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" id="register-btn" class="hero-action full" style="margin-top: 8px;" data-i18n="auth_register_btn">Create Account</button>
+      </form>
+
+      <div class="auth-footer">
+        <span data-i18n="auth_have_account">Already have an account?</span>
+        <a href="{{ url_for('auth.login') }}" data-i18n="auth_login_link">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePwdVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🔒';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+      }
+    }
+
+    document.querySelector('.auth-form').addEventListener('submit', function() {
+      const btn = document.getElementById('register-btn');
+      if (btn) {
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'wait';
+        btn.textContent = (document.documentElement.lang === 'ar' ? 'جاري إنشاء الحساب...' : 'Creating account...');
+      }
+    });
+  </script>
+</body>
+</html>

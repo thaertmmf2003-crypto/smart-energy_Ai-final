@@ -1,0 +1,573 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <div class="kicker" data-i18n="eyebrow_center">ENERGY OPERATIONS CENTER</div>
+    <h2 data-i18n="admin_title">Admin Control Center</h2>
+    <p data-i18n="admin_sub">Centralized user administration, permission provisioning, and security audit</p>
+  </div>
+  <button class="hero-action btn-open-create-user" id="btn-open-create-user" type="button" onclick="openCreateUserModal()">
+    <span>+</span> <span data-i18n="admin_create_user_btn">Create New User</span>
+  </button>
+</div>
+
+<!-- KPI Cards Grid -->
+<section class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+  <article class="kpi-card">
+    <div class="kpi-label" data-i18n="kpi_total_users">TOTAL USERS</div>
+    <div class="kpi-value gold">{{ kpis.total_users }}</div>
+    <div class="kpi-meta">Registered across all roles</div>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-label" data-i18n="kpi_admins">ADMINISTRATORS</div>
+    <div class="kpi-value">{{ kpis.admin_count }}</div>
+    <div class="kpi-meta">Full root access</div>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-label" data-i18n="kpi_managers">OPERATIONS MANAGERS</div>
+    <div class="kpi-value info-text" style="color: var(--info);">{{ kpis.manager_count }}</div>
+    <div class="kpi-meta">HVAC & action approvals</div>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-label" data-i18n="kpi_analysts">DATA ANALYSTS</div>
+    <div class="kpi-value" style="color: var(--success);">{{ kpis.analyst_count }}</div>
+    <div class="kpi-meta">Telemetry & read-only access</div>
+  </article>
+</section>
+
+<section class="kpi-grid compact" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 28px;">
+  <article class="kpi-card">
+    <div class="kpi-label" data-i18n="kpi_verified">VERIFIED USERS</div>
+    <div class="kpi-value smallish" style="color: var(--success);">{{ kpis.verified_count }} / {{ kpis.total_users }}</div>
+    <div class="kpi-meta">2FA Email Verified</div>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-label" data-i18n="kpi_active">ACTIVE ACCOUNTS</div>
+    <div class="kpi-value smallish gold">{{ kpis.active_count }}</div>
+    <div class="kpi-meta">Unrestricted access</div>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-label" data-i18n="kpi_codes">SECURITY CODES</div>
+    <div class="kpi-value smallish">{{ kpis.codes_count }}</div>
+    <div class="kpi-meta">Audit trail tracked</div>
+  </article>
+</section>
+
+<!-- Users Management Directory -->
+<section class="panel" style="margin-bottom: 28px;">
+  <div class="panel-head">
+    <div>
+      <div class="panel-kicker">ACCESS CONTROL</div>
+      <h3 data-i18n="admin_users_title">System Users Directory</h3>
+    </div>
+  </div>
+
+  <div style="overflow-x: auto; margin-top: 14px;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th data-i18n="tbl_id">ID</th>
+          <th data-i18n="tbl_user">User</th>
+          <th data-i18n="tbl_email">Email</th>
+          <th data-i18n="tbl_role">Role</th>
+          <th data-i18n="tbl_permissions">Permissions</th>
+          <th data-i18n="tbl_status">Status</th>
+          <th data-i18n="tbl_last_login">Last Login</th>
+          <th data-i18n="tbl_actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td style="font-weight: 700; color: var(--muted-2);">#{{ u.id }}</td>
+          <td>
+            <div style="font-weight: 700;">{{ u.username }}</div>
+          </td>
+          <td style="color: var(--muted); font-family: monospace;">{{ u.email }}</td>
+          <td>
+            <span class="badge-role badge-{{ u.role }}">
+              {% if u.role == 'admin' %}Administrator
+              {% elif u.role == 'manager' %}Operations Manager
+              {% elif u.role == 'analyst' %}Data Analyst
+              {% else %}Standard User{% endif %}
+            </span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+              {% if u.can_manage_users %}<span class="badge-status" style="background: rgba(222,184,92,0.15); color: var(--gold);">Users</span>{% endif %}
+              {% if u.can_control_hvac %}<span class="badge-status" style="background: rgba(134,175,199,0.15); color: var(--info);">HVAC</span>{% endif %}
+              {% if u.can_approve_actions %}<span class="badge-status" style="background: rgba(113,201,150,0.15); color: var(--success);">Approve</span>{% endif %}
+              {% if u.can_view_analytics %}<span class="badge-status" style="background: rgba(255,255,255,0.06); color: var(--muted);">Analytics</span>{% endif %}
+            </div>
+          </td>
+          <td>
+            {% if u.is_active %}
+              <span class="badge-status badge-active" data-i18n="status_active">Active</span>
+            {% else %}
+              <span class="badge-status badge-inactive" data-i18n="status_inactive">Deactivated</span>
+            {% endif %}
+          </td>
+          <td style="font-size: 11px; color: var(--muted-2);">{{ u.last_login or '—' }}</td>
+          <td>
+            <div class="table-actions">
+              <!-- Edit Details -->
+              <button type="button" class="action-btn-sm btn-edit-user"
+                data-user-id="{{ u.id }}"
+                data-username="{{ u.username }}"
+                data-email="{{ u.email }}"
+                data-verified="{{ 1 if u.is_verified else 0 }}"
+                data-i18n="btn_edit">
+                Edit
+              </button>
+
+              <!-- Reset Password -->
+              <button type="button" class="action-btn-sm btn-reset-pwd"
+                style="color: var(--gold-soft); border-color: var(--line-gold);"
+                data-user-id="{{ u.id }}"
+                data-username="{{ u.username }}"
+                data-i18n="btn_reset_pwd">
+                Password
+              </button>
+
+              <!-- Edit Role -->
+              <button type="button" class="action-btn-sm btn-edit-role"
+                data-user-id="{{ u.id }}"
+                data-username="{{ u.username }}"
+                data-role="{{ u.role }}"
+                data-i18n="btn_edit_role">
+                Role
+              </button>
+
+              <!-- Edit Permissions -->
+              <button type="button" class="action-btn-sm btn-edit-perms"
+                data-user-id="{{ u.id }}"
+                data-username="{{ u.username }}"
+                data-can-manage="{{ 1 if u.can_manage_users else 0 }}"
+                data-can-hvac="{{ 1 if u.can_control_hvac else 0 }}"
+                data-can-approve="{{ 1 if u.can_approve_actions else 0 }}"
+                data-can-analytics="{{ 1 if u.can_view_analytics else 0 }}"
+                data-i18n="btn_edit_perms">
+                Permissions
+              </button>
+
+              <!-- Impersonate User -->
+              {% if u.id != current_user.id %}
+              <form method="POST" action="{{ url_for('auth.admin_impersonate_user', user_id=u.id) }}" style="display: inline;">
+                <button type="submit" class="action-btn-sm" style="color: #64b5f6; border-color: rgba(100, 181, 246, 0.3);" title="Login directly as this user" data-i18n="btn_login_as">
+                  Login As
+                </button>
+              </form>
+
+              <!-- Toggle Active -->
+              <form method="POST" action="{{ url_for('auth.admin_toggle_status', user_id=u.id) }}" style="display: inline;">
+                <button type="submit" class="action-btn-sm" title="Toggle active status" data-i18n="{{ 'btn_deactivate' if u.is_active else 'btn_activate' }}">
+                  {{ 'Deactivate' if u.is_active else 'Activate' }}
+                </button>
+              </form>
+
+              <!-- Delete User -->
+              <form method="POST" action="{{ url_for('auth.admin_delete_user', user_id=u.id) }}" style="display: inline;" onsubmit="return confirm(t('confirm_delete_user'));">
+                <button type="submit" class="action-btn-sm action-btn-danger" data-i18n="btn_delete">
+                  Delete
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Verification Codes Security Audit Log -->
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <div class="panel-kicker">SECURITY AUDIT</div>
+      <h3 data-i18n="admin_audit_title">Verification Codes Audit Log (Latest 50)</h3>
+    </div>
+  </div>
+
+  <div style="overflow-x: auto; margin-top: 14px;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th data-i18n="tbl_id">ID</th>
+          <th data-i18n="tbl_user">User</th>
+          <th data-i18n="tbl_email">Email</th>
+          <th data-i18n="tbl_code">Code</th>
+          <th data-i18n="tbl_type">Type</th>
+          <th data-i18n="tbl_state">Code State</th>
+          <th data-i18n="tbl_created">Created At</th>
+          <th data-i18n="tbl_expires">Expires At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in verification_codes %}
+        <tr>
+          <td style="font-weight: 700; color: var(--muted-2);">#{{ c.id }}</td>
+          <td><b>{{ c.username or 'Guest / New' }}</b></td>
+          <td style="color: var(--muted); font-family: monospace;">{{ c.email }}</td>
+          <td>
+            <code style="font-size: 14px; color: var(--gold-soft); font-weight: 800; letter-spacing: 2px;">{{ c.code }}</code>
+          </td>
+          <td>
+            <span class="badge-role" style="background: rgba(255,255,255,0.06); color: var(--cream);">{{ c.code_type }}</span>
+          </td>
+          <td>
+            {% if c.status_text == 'consumed' %}
+              <span class="badge-status" style="background: rgba(113, 201, 150, 0.2); color: #71C996;">CONSUMED (1)</span>
+            {% elif c.status_text == 'expired' %}
+              <span class="badge-status" style="background: rgba(214, 109, 114, 0.2); color: #D66D72;">EXPIRED</span>
+            {% elif c.status_text == 'cancelled' %}
+              <span class="badge-status" style="background: rgba(255, 255, 255, 0.08); color: var(--muted);">SUPERSEDED</span>
+            {% else %}
+              <span class="badge-status" style="background: rgba(222, 184, 92, 0.2); color: var(--gold-soft);">ACTIVE OTP (0)</span>
+            {% endif %}
+          </td>
+          <td style="font-size: 11px; color: var(--muted-2);">{{ c.created_at }}</td>
+          <td style="font-size: 11px; color: var(--muted-2);">{{ c.expires_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==========================================
+     MODALS
+     ========================================== -->
+
+<!-- Create User Modal -->
+<div id="create-user-modal" class="modal-overlay" hidden>
+  <div class="modal-card" style="max-width: 480px;">
+    <div class="modal-kicker">USER PROVISIONING</div>
+    <h3 class="modal-title" data-i18n="modal_create_title">Create New User Account</h3>
+
+    <form method="POST" action="{{ url_for('auth.admin_create_user') }}" class="auth-form" style="margin-top: 18px;">
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth_username_label">Username</label>
+        <input type="text" name="username" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth_email_label">Email Address</label>
+        <input type="email" name="email" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth_password_label">Password</label>
+        <input type="password" name="password" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="tbl_role">Role</label>
+        <select name="role" class="form-input" style="padding: 10px;">
+          <option value="user" data-i18n="role_user">Standard User</option>
+          <option value="analyst" data-i18n="role_analyst">Data Analyst</option>
+          <option value="manager" data-i18n="role_manager">Operations Manager</option>
+          <option value="admin" data-i18n="role_admin">Administrator</option>
+        </select>
+      </div>
+
+      <div style="margin: 10px 0; display: flex; flex-direction: column; gap: 8px;">
+        <span class="form-label" data-i18n="tbl_permissions">Direct Permissions</span>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+          <input type="checkbox" name="can_manage_users" value="1"> <span data-i18n="perm_manage_users">Manage Users</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+          <input type="checkbox" name="can_control_hvac" value="1"> <span data-i18n="perm_control_hvac">Control HVAC</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+          <input type="checkbox" name="can_approve_actions" value="1"> <span data-i18n="perm_approve_actions">Approve Actions</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+          <input type="checkbox" name="can_view_analytics" value="1" checked> <span data-i18n="perm_view_analytics">View Analytics</span>
+        </label>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button type="submit" class="primary-btn" data-i18n="btn_save">Save Changes</button>
+        <button type="button" class="secondary-btn btn-modal-close" onclick="closeModals()" data-i18n="btn_cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Change Role Modal -->
+<div id="role-modal" class="modal-overlay" hidden>
+  <div class="modal-card" style="max-width: 420px;">
+    <div class="modal-kicker">ROLE PROVISIONING</div>
+    <h3 class="modal-title" data-i18n="modal_role_title">Change User Role</h3>
+    <p style="font-size: 12px; color: var(--muted); margin: 6px 0 16px;">
+      User: <b id="role-modal-username" style="color: var(--gold-soft);">—</b>
+    </p>
+
+    <form id="role-modal-form" method="POST" action="" class="auth-form">
+      <div class="form-group">
+        <label class="form-label" data-i18n="tbl_role">Select Role</label>
+        <select id="role-modal-select" name="role" class="form-input" style="padding: 10px;">
+          <option value="user" data-i18n="role_user">Standard User</option>
+          <option value="analyst" data-i18n="role_analyst">Data Analyst</option>
+          <option value="manager" data-i18n="role_manager">Operations Manager</option>
+          <option value="admin" data-i18n="role_admin">Administrator</option>
+        </select>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button type="submit" class="primary-btn" data-i18n="btn_save">Save Changes</button>
+        <button type="button" class="secondary-btn btn-modal-close" onclick="closeModals()" data-i18n="btn_cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Permissions Modal -->
+<div id="perms-modal" class="modal-overlay" hidden>
+  <div class="modal-card" style="max-width: 440px;">
+    <div class="modal-kicker">FINE-GRAINED SECURITY</div>
+    <h3 class="modal-title" data-i18n="modal_perms_title">Update Permissions</h3>
+    <p style="font-size: 12px; color: var(--muted); margin: 6px 0 16px;">
+      User: <b id="perms-modal-username" style="color: var(--gold-soft);">—</b>
+    </p>
+
+    <form id="perms-modal-form" method="POST" action="" class="auth-form">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+          <input type="checkbox" id="perm-manage-users" name="can_manage_users" value="1">
+          <span data-i18n="perm_manage_users">Manage Users</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+          <input type="checkbox" id="perm-control-hvac" name="can_control_hvac" value="1">
+          <span data-i18n="perm_control_hvac">Control HVAC</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+          <input type="checkbox" id="perm-approve-actions" name="can_approve_actions" value="1">
+          <span data-i18n="perm_approve_actions">Approve Actions</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+          <input type="checkbox" id="perm-view-analytics" name="can_view_analytics" value="1">
+          <span data-i18n="perm_view_analytics">View Analytics</span>
+        </label>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button type="submit" class="primary-btn" data-i18n="btn_save">Save Changes</button>
+        <button type="button" class="secondary-btn btn-modal-close" onclick="closeModals()" data-i18n="btn_cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit User Details Modal -->
+<div id="edit-user-modal" class="modal-overlay" hidden>
+  <div class="modal-card" style="max-width: 440px;">
+    <div class="modal-kicker">USER MANAGEMENT</div>
+    <h3 class="modal-title" data-i18n="modal_edit_user_title">Edit User Profile</h3>
+
+    <form id="edit-user-form" method="POST" action="" class="auth-form" style="margin-top: 18px;">
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth_username_label">Username</label>
+        <input type="text" id="edit-user-username" name="username" class="form-input" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth_email_label">Email Address</label>
+        <input type="email" id="edit-user-email" name="email" class="form-input" required>
+      </div>
+
+      <div style="margin: 14px 0 6px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+          <input type="checkbox" id="edit-user-verified" name="is_verified" value="1">
+          <span data-i18n="lbl_is_verified">Email Verified (2FA Confirmed)</span>
+        </label>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button type="submit" class="primary-btn" data-i18n="btn_save">Save Changes</button>
+        <button type="button" class="secondary-btn btn-modal-close" onclick="closeModals()" data-i18n="btn_cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div id="reset-pwd-modal" class="modal-overlay" hidden>
+  <div class="modal-card" style="max-width: 440px;">
+    <div class="modal-kicker">SECURITY & CREDENTIALS</div>
+    <h3 class="modal-title" data-i18n="modal_reset_pwd_title">Reset User Password</h3>
+    <p style="font-size: 12px; color: var(--muted); margin: 6px 0 16px;">
+      <span data-i18n="modal_reset_pwd_sub">Target User:</span> <b id="reset-pwd-username" style="color: var(--gold-soft);">—</b>
+    </p>
+
+    <form id="reset-pwd-form" method="POST" action="" class="auth-form">
+      <div class="form-group">
+        <label class="form-label" data-i18n="lbl_new_password">New Password</label>
+        <input type="password" id="reset-new-password" name="new_password" class="form-input" minlength="6" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="lbl_confirm_password">Confirm New Password</label>
+        <input type="password" id="reset-confirm-password" name="confirm_password" class="form-input" minlength="6" required>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button type="submit" class="primary-btn" data-i18n="btn_save">Save Changes</button>
+        <button type="button" class="secondary-btn btn-modal-close" onclick="closeModals()" data-i18n="btn_cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function openCreateUserModal() {
+    const modal = document.getElementById('create-user-modal');
+    if (modal) {
+      modal.hidden = false;
+      document.body.classList.add('modal-open');
+    }
+  }
+
+  function openRoleModal(userId, username, role) {
+    const modal = document.getElementById('role-modal');
+    if (!modal) return;
+    const targetLabel = document.getElementById('role-modal-username');
+    if (targetLabel) targetLabel.textContent = username || '—';
+    const select = document.getElementById('role-modal-select');
+    if (select) select.value = role || 'user';
+    const form = document.getElementById('role-modal-form');
+    if (form) form.action = `/admin/users/${userId}/role`;
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+  }
+
+  function openPermsModal(userId, username, canManage, canHvac, canApprove, canAnalytics) {
+    const modal = document.getElementById('perms-modal');
+    if (!modal) return;
+    const targetLabel = document.getElementById('perms-modal-username');
+    if (targetLabel) targetLabel.textContent = username || '—';
+    const chkManage = document.getElementById('perm-manage-users');
+    if (chkManage) chkManage.checked = (canManage === 1 || canManage === '1' || canManage === true);
+    const chkHvac = document.getElementById('perm-control-hvac');
+    if (chkHvac) chkHvac.checked = (canHvac === 1 || canHvac === '1' || canHvac === true);
+    const chkApprove = document.getElementById('perm-approve-actions');
+    if (chkApprove) chkApprove.checked = (canApprove === 1 || canApprove === '1' || canApprove === true);
+    const chkAnalytics = document.getElementById('perm-view-analytics');
+    if (chkAnalytics) chkAnalytics.checked = (canAnalytics === 1 || canAnalytics === '1' || canAnalytics === true);
+    const form = document.getElementById('perms-modal-form');
+    if (form) form.action = `/admin/users/${userId}/permissions`;
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+  }
+
+  function openEditUserModal(userId, username, email, isVerified) {
+    const modal = document.getElementById('edit-user-modal');
+    if (!modal) return;
+    const uInput = document.getElementById('edit-user-username');
+    if (uInput) uInput.value = username || '';
+    const eInput = document.getElementById('edit-user-email');
+    if (eInput) eInput.value = email || '';
+    const vCheck = document.getElementById('edit-user-verified');
+    if (vCheck) vCheck.checked = (isVerified === 1 || isVerified === '1' || isVerified === true);
+    const form = document.getElementById('edit-user-form');
+    if (form) form.action = `/admin/users/${userId}/edit-details`;
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+  }
+
+  function openResetPwdModal(userId, username) {
+    const modal = document.getElementById('reset-pwd-modal');
+    if (!modal) return;
+    const targetLabel = document.getElementById('reset-pwd-username');
+    if (targetLabel) targetLabel.textContent = username || '—';
+    const form = document.getElementById('reset-pwd-form');
+    if (form) form.action = `/admin/users/${userId}/reset-password`;
+    const newPwd = document.getElementById('reset-new-password');
+    if (newPwd) newPwd.value = '';
+    const confirmPwd = document.getElementById('reset-confirm-password');
+    if (confirmPwd) confirmPwd.value = '';
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+  }
+
+  function closeModals() {
+    document.querySelectorAll('.modal-overlay').forEach(el => el.hidden = true);
+    document.body.classList.remove('modal-open');
+  }
+
+  // Expose to window object for global availability
+  window.openCreateUserModal = openCreateUserModal;
+  window.openRoleModal = openRoleModal;
+  window.openPermsModal = openPermsModal;
+  window.openEditUserModal = openEditUserModal;
+  window.openResetPwdModal = openResetPwdModal;
+  window.closeModals = closeModals;
+
+  // Delegated click event listener
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+
+    if (btn.classList.contains('btn-edit-user')) {
+      e.preventDefault();
+      openEditUserModal(
+        btn.dataset.userId,
+        btn.dataset.username,
+        btn.dataset.email,
+        btn.dataset.verified
+      );
+    } else if (btn.classList.contains('btn-reset-pwd')) {
+      e.preventDefault();
+      openResetPwdModal(
+        btn.dataset.userId,
+        btn.dataset.username
+      );
+    } else if (btn.classList.contains('btn-edit-role')) {
+      e.preventDefault();
+      openRoleModal(
+        btn.dataset.userId,
+        btn.dataset.username,
+        btn.dataset.role
+      );
+    } else if (btn.classList.contains('btn-edit-perms')) {
+      e.preventDefault();
+      openPermsModal(
+        btn.dataset.userId,
+        btn.dataset.username,
+        btn.dataset.canManage,
+        btn.dataset.canHvac,
+        btn.dataset.canApprove,
+        btn.dataset.canAnalytics
+      );
+    } else if (btn.id === 'btn-open-create-user' || btn.classList.contains('btn-open-create-user')) {
+      e.preventDefault();
+      openCreateUserModal();
+    } else if (btn.classList.contains('btn-modal-close')) {
+      e.preventDefault();
+      closeModals();
+    }
+  });
+
+  // Close modals on clicking overlay backdrop
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModals();
+    });
+  });
+
+  // Close modals on Escape key
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModals();
+  });
+</script>
+{% endblock %}

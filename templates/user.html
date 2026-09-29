@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <div class="kicker" data-i18n="eyebrow_center">ENERGY OPERATIONS CENTER</div>
+    <h2 data-i18n="profile_title">User Profile</h2>
+    <p data-i18n="profile_sub">Manage your account credentials and view access roles</p>
+  </div>
+</div>
+
+<div class="two-col" style="align-items: start;">
+  <!-- Account Details & Permissions Card -->
+  <div style="display: flex; flex-direction: column; gap: 20px;">
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-kicker">IDENTITY</div>
+          <h3 data-i18n="profile_info_card">Account Details</h3>
+        </div>
+        <span class="badge-role badge-{{ user.role }}">
+          {% if user.role == 'admin' %}Administrator
+          {% elif user.role == 'manager' %}Operations Manager
+          {% elif user.role == 'analyst' %}Data Analyst
+          {% else %}Standard User{% endif %}
+        </span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+        <div class="state-tile">
+          <span data-i18n="profile_username">Username</span>
+          <b style="font-size: 15px; color: var(--gold-soft);">{{ user.username }}</b>
+        </div>
+        <div class="state-tile">
+          <span data-i18n="profile_email">Email Address</span>
+          <b style="font-size: 13px; font-family: monospace;">{{ user.email }}</b>
+        </div>
+        <div class="state-tile">
+          <span data-i18n="profile_verified">Verification Status</span>
+          <div>
+            {% if user.is_verified %}
+              <span class="badge-status badge-active" data-i18n="profile_verified_yes">Verified (2FA)</span>
+            {% else %}
+              <span class="badge-status badge-inactive" data-i18n="profile_verified_no">Pending Verification</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="state-tile">
+          <span data-i18n="tbl_status">Status</span>
+          <div>
+            {% if user.is_active %}
+              <span class="badge-status badge-active" data-i18n="status_active">Active</span>
+            {% else %}
+              <span class="badge-status badge-inactive" data-i18n="status_inactive">Deactivated</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="state-tile">
+          <span data-i18n="profile_created_at">Member Since</span>
+          <b style="font-size: 12px; color: var(--muted);">{{ user.created_at }}</b>
+        </div>
+        <div class="state-tile">
+          <span data-i18n="profile_last_login">Last Login</span>
+          <b style="font-size: 12px; color: var(--muted);">{{ user.last_login or '—' }}</b>
+        </div>
+      </div>
+    </section>
+
+    <!-- Permissions Overview -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-kicker">RBAC ACCESS MATRIX</div>
+          <h3 data-i18n="profile_perms_card">Granted Permissions</h3>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--line);">
+          <span style="font-size: 16px;">{{ '✓' if user.can_manage_users else '✕' }}</span>
+          <div>
+            <div style="font-size: 12px; font-weight: 700;" data-i18n="perm_manage_users">Manage Users</div>
+            <div style="font-size: 9.5px; color: var(--muted-2);">Create, update roles & delete accounts</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--line);">
+          <span style="font-size: 16px;">{{ '✓' if user.can_control_hvac else '✕' }}</span>
+          <div>
+            <div style="font-size: 12px; font-weight: 700;" data-i18n="perm_control_hvac">Control HVAC</div>
+            <div style="font-size: 9.5px; color: var(--muted-2);">Adjust setpoints & zone temperatures</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--line);">
+          <span style="font-size: 16px;">{{ '✓' if user.can_approve_actions else '✕' }}</span>
+          <div>
+            <div style="font-size: 12px; font-weight: 700;" data-i18n="perm_approve_actions">Approve Actions</div>
+            <div style="font-size: 9.5px; color: var(--muted-2);">Approve or reject agent recommendations</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--line);">
+          <span style="font-size: 16px;">{{ '✓' if user.can_view_analytics else '✕' }}</span>
+          <div>
+            <div style="font-size: 12px; font-weight: 700;" data-i18n="perm_view_analytics">View Analytics</div>
+            <div style="font-size: 9.5px; color: var(--muted-2);">Access telemetry, Digital Twin & LIME</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Change Password Card -->
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">SECURITY CREDENTIALS</div>
+        <h3 data-i18n="profile_pwd_card">Change Password</h3>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('auth.user_change_password') }}" class="auth-form" style="margin-top: 18px;">
+      <div class="form-group">
+        <label class="form-label" for="current_password" data-i18n="pwd_current">Current Password</label>
+        <div class="form-input-wrap">
+          <input type="password" id="current_password" name="current_password" class="form-input" required>
+          <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('current_password', this)">👁</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="new_password" data-i18n="pwd_new">New Password</label>
+        <div class="form-input-wrap">
+          <input type="password" id="new_password" name="new_password" class="form-input" placeholder="Min. 6 characters" required>
+          <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('new_password', this)">👁</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirm_new_password" data-i18n="pwd_confirm">Confirm New Password</label>
+        <div class="form-input-wrap">
+          <input type="password" id="confirm_new_password" name="confirm_new_password" class="form-input" placeholder="Repeat your new password" required>
+          <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('confirm_new_password', this)">👁</button>
+        </div>
+      </div>
+
+      <button type="submit" class="hero-action full" style="margin-top: 10px;" data-i18n="pwd_update_btn">
+        Update Password
+      </button>
+    </form>
+  </section>
+</div>
+
+<script>
+  function togglePwdVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🔒';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  }
+</script>
+{% endblock %}

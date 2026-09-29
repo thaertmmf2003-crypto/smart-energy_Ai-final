@@ -1,0 +1,432 @@
+timestamp,event_type,building_id,severity,value,description
+2017-08-11 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.81,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-14 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.85,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-14 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.24,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-15 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.84,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-15 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.46,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-16 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.59,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-16 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.69,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-16 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.32,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-17 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.73,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-17 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.1,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-17 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.39,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-17 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.79,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-17 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.04,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-18 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.88,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-22 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.09,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-24 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.06,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-24 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.4,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-26 09:00:00,ENERGY_ANOMALY,B003,ELEVATED,26.9,Actual energy differs significantly from forecast.
+2017-08-29 10:00:00,ENERGY_ANOMALY,B002,ELEVATED,26.16,Actual energy differs significantly from forecast.
+2017-08-29 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.98,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-29 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.78,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-29 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.21,Predicted campus demand is approaching the simulated grid import limit.
+2017-08-31 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.94,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-01 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.4,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-01 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.05,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-04 09:00:00,ENERGY_ANOMALY,B003,ELEVATED,27.42,Actual energy differs significantly from forecast.
+2017-09-05 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.13,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-06 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.17,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-06 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.12,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-12 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.98,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-12 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.76,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-13 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.4,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-13 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.08,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-14 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.47,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-14 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.93,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-14 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.77,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-15 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.71,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-15 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.21,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-15 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.79,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-18 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.07,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-19 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.2,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-22 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.72,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-24 07:00:00,ENERGY_ANOMALY,B001,ELEVATED,-28.62,Actual energy differs significantly from forecast.
+2017-09-24 11:00:00,ENERGY_ANOMALY,B001,HIGH,66.63,Actual energy differs significantly from forecast.
+2017-09-26 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.04,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-27 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.81,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-27 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.35,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-28 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.06,Predicted campus demand is approaching the simulated grid import limit.
+2017-09-28 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.23,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-02 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.09,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-02 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.98,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-02 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.8,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-02 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.13,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-02 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.58,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-02 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.36,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-03 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.41,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-03 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.73,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-03 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.62,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-03 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.06,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-03 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.38,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-03 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.54,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-03 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.42,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-04 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.19,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-04 13:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.79,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-04 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.15,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-04 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.74,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-04 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.8,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-04 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.13,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-05 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.5,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-05 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.34,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-05 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.7,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-05 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.04,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-05 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.69,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-05 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.29,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-06 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.97,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-06 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.63,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-06 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.38,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-06 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.48,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-09 10:00:00,ENERGY_ANOMALY,B001,ELEVATED,26.33,Actual energy differs significantly from forecast.
+2017-10-10 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.34,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-10 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.82,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-10 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.99,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-10 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.62,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-10 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.0,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-11 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.84,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-11 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.33,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-11 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.56,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-11 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.31,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-11 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.14,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-12 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.61,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-12 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.65,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-12 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.17,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-12 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.83,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-12 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.2,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-12 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.95,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-12 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.68,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-12 18:00:00,ENERGY_ANOMALY,B001,ELEVATED,-29.45,Actual energy differs significantly from forecast.
+2017-10-13 09:00:00,ENERGY_ANOMALY,B003,ELEVATED,26.01,Actual energy differs significantly from forecast.
+2017-10-13 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.94,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-13 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.8,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-13 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.92,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-13 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.36,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-13 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.29,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-13 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.0,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-16 09:00:00,ENERGY_ANOMALY,B003,ELEVATED,26.74,Actual energy differs significantly from forecast.
+2017-10-16 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.88,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-16 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.3,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-16 13:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,75.05,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-16 14:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.23,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-16 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.75,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-16 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.61,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-17 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.01,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-17 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.17,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-17 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.07,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-17 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.6,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-17 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.07,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-17 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.03,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-17 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.87,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-18 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.19,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-18 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.16,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-18 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.29,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-18 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.46,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-18 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.38,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-18 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.55,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-19 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.36,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-19 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.73,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-19 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.75,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-19 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.93,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-19 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.84,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-19 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.55,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-19 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.32,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-20 09:00:00,ENERGY_ANOMALY,B003,ELEVATED,46.76,Actual energy differs significantly from forecast.
+2017-10-20 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.29,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-20 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.5,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-20 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.78,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-20 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.69,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-20 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.12,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-22 13:00:00,ENERGY_ANOMALY,B002,ELEVATED,-35.2,Actual energy differs significantly from forecast.
+2017-10-22 15:00:00,ENERGY_ANOMALY,B002,ELEVATED,35.86,Actual energy differs significantly from forecast.
+2017-10-23 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.01,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-23 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.72,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-23 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.93,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-23 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.05,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-23 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.08,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-23 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.09,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-24 09:00:00,ENERGY_ANOMALY,B003,ELEVATED,25.79,Actual energy differs significantly from forecast.
+2017-10-24 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.93,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-24 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.78,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-24 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.81,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-24 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.11,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-24 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.96,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-24 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.27,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-25 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.93,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-25 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.02,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-25 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.92,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-25 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.98,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-25 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.62,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-25 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.41,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-25 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.7,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-26 09:00:00,ENERGY_ANOMALY,B003,ELEVATED,31.33,Actual energy differs significantly from forecast.
+2017-10-26 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.65,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-26 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.74,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-26 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.18,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-26 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.59,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-26 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.41,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-26 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.53,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-26 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.14,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-27 09:00:00,ENERGY_ANOMALY,B003,ELEVATED,31.5,Actual energy differs significantly from forecast.
+2017-10-27 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.59,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-27 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.7,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-27 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.09,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-27 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.11,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-27 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.37,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-29 01:00:00,ENERGY_ANOMALY,B003,HIGH,100.5,Actual energy differs significantly from forecast.
+2017-10-29 01:00:00,ENERGY_ANOMALY,B001,HIGH,95.57,Actual energy differs significantly from forecast.
+2017-10-29 01:00:00,ENERGY_ANOMALY,B002,HIGH,89.89,Actual energy differs significantly from forecast.
+2017-10-29 02:00:00,ENERGY_ANOMALY,B002,ELEVATED,-42.78,Actual energy differs significantly from forecast.
+2017-10-29 02:00:00,ENERGY_ANOMALY,B003,ELEVATED,-37.95,Actual energy differs significantly from forecast.
+2017-10-29 02:00:00,ENERGY_ANOMALY,B001,ELEVATED,-45.43,Actual energy differs significantly from forecast.
+2017-10-30 08:00:00,ENERGY_ANOMALY,B003,ELEVATED,27.34,Actual energy differs significantly from forecast.
+2017-10-30 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.25,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-30 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.02,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-30 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.35,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-30 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,73.63,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-30 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.2,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-31 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.11,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-31 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.94,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-31 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.58,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-31 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.57,Predicted campus demand is approaching the simulated grid import limit.
+2017-10-31 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.93,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-01 09:00:00,ENERGY_ANOMALY,B003,ELEVATED,36.25,Actual energy differs significantly from forecast.
+2017-11-01 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.19,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-01 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.32,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-01 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.48,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-01 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.5,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-01 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.63,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-01 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.05,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-01 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.08,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-02 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.61,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-02 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.09,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-02 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.6,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-02 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.69,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-02 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.98,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-02 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.4,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-02 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.27,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-03 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.75,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-03 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.87,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-03 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.83,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-03 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.78,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-03 15:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.07,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-03 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.25,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-06 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.59,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-06 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.67,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-06 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.04,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-06 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.99,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-06 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.8,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-06 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.56,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-07 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.61,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-07 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.09,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-07 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.4,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-07 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.16,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-07 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.85,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-07 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.52,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-08 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.38,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-08 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.93,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-08 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.08,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-08 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.2,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-08 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.87,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-08 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.31,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-09 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.3,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-09 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.15,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-09 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.64,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-09 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.07,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-09 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.59,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-09 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.89,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-10 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.61,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-10 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.86,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-10 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.95,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-10 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.33,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-10 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.05,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-13 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.64,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-13 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.96,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-13 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.67,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-13 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.7,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-13 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.57,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-13 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.81,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-14 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.84,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-14 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.1,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-14 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.03,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-14 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.3,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-14 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.43,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-14 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.74,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-15 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.96,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-15 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.64,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-15 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.83,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-15 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.99,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-15 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.96,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-15 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.3,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-16 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.16,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-16 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.51,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-16 14:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.3,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-16 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.34,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-16 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.46,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-16 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.51,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-17 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.54,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-17 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.72,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-17 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.82,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-17 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.1,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-17 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.72,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-17 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,74.2,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-17 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.42,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-19 11:00:00,ENERGY_ANOMALY,B001,ELEVATED,43.41,Actual energy differs significantly from forecast.
+2017-11-20 00:00:00,ENERGY_ANOMALY,B001,ELEVATED,43.68,Actual energy differs significantly from forecast.
+2017-11-20 01:00:00,ENERGY_ANOMALY,B001,ELEVATED,-26.38,Actual energy differs significantly from forecast.
+2017-11-20 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.99,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-20 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.51,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-20 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.32,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-20 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.09,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-20 15:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.33,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-20 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.56,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-20 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.83,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-21 01:00:00,ENERGY_ANOMALY,B001,ELEVATED,30.94,Actual energy differs significantly from forecast.
+2017-11-21 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.91,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-21 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.16,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-21 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.15,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-21 14:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,74.87,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-21 15:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,73.31,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-21 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.65,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-21 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.23,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-21 23:00:00,ENERGY_ANOMALY,B001,ELEVATED,-26.91,Actual energy differs significantly from forecast.
+2017-11-22 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.48,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-22 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.53,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-22 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.9,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-22 14:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.29,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-22 15:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.44,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-22 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,76.56,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-22 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.21,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-23 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.17,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-23 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.71,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-23 13:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.05,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-23 14:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,73.47,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-23 15:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.1,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-23 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,75.23,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-23 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.36,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-24 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.28,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-24 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.68,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-24 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.04,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-24 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.51,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-24 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.64,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-24 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.67,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-24 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.36,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-27 00:00:00,ENERGY_ANOMALY,B001,ELEVATED,26.63,Actual energy differs significantly from forecast.
+2017-11-27 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.54,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-27 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.49,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-27 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.99,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-27 14:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.25,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-27 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.92,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-27 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.22,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-27 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.34,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-27 23:00:00,ENERGY_ANOMALY,B001,ELEVATED,25.3,Actual energy differs significantly from forecast.
+2017-11-28 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.04,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-28 13:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.95,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-28 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.04,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-28 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.47,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-28 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.89,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-28 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.92,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-29 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.18,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-29 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.8,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-29 14:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,76.17,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-29 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.1,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-29 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.69,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-29 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.4,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-30 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.4,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-30 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.78,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-30 13:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,74.2,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-30 14:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,74.17,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-30 15:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,75.38,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-30 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,74.98,Predicted campus demand is approaching the simulated grid import limit.
+2017-11-30 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.97,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-01 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.86,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-01 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.76,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-01 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.91,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-01 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.9,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-01 15:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.09,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-01 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,73.28,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-01 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,68.39,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-03 18:00:00,ENERGY_ANOMALY,B001,ELEVATED,-33.23,Actual energy differs significantly from forecast.
+2017-12-03 20:00:00,ENERGY_ANOMALY,B001,ELEVATED,27.07,Actual energy differs significantly from forecast.
+2017-12-03 21:00:00,ENERGY_ANOMALY,B001,ELEVATED,39.28,Actual energy differs significantly from forecast.
+2017-12-04 00:00:00,ENERGY_ANOMALY,B001,ELEVATED,45.07,Actual energy differs significantly from forecast.
+2017-12-04 03:00:00,ENERGY_ANOMALY,B001,HIGH,63.9,Actual energy differs significantly from forecast.
+2017-12-04 04:00:00,ENERGY_ANOMALY,B001,ELEVATED,26.02,Actual energy differs significantly from forecast.
+2017-12-04 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.84,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-04 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.41,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-04 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.33,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-04 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.69,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-04 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.06,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-04 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,68.81,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-04 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.2,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-05 11:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.49,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-05 12:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.32,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-05 13:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.83,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-05 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.9,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-05 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.25,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-05 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.42,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-05 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,69.53,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-05 23:00:00,ENERGY_ANOMALY,B001,ELEVATED,34.12,Actual energy differs significantly from forecast.
+2017-12-06 00:00:00,ENERGY_ANOMALY,B003,ELEVATED,33.76,Actual energy differs significantly from forecast.
+2017-12-06 01:00:00,ENERGY_ANOMALY,B003,ELEVATED,36.54,Actual energy differs significantly from forecast.
+2017-12-06 02:00:00,ENERGY_ANOMALY,B003,ELEVATED,28.81,Actual energy differs significantly from forecast.
+2017-12-06 03:00:00,ENERGY_ANOMALY,B003,ELEVATED,27.1,Actual energy differs significantly from forecast.
+2017-12-06 05:00:00,ENERGY_ANOMALY,B003,ELEVATED,25.84,Actual energy differs significantly from forecast.
+2017-12-07 09:00:00,ENERGY_ANOMALY,B001,ELEVATED,-25.44,Actual energy differs significantly from forecast.
+2017-12-07 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.48,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-07 13:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.14,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-07 14:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,65.59,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-07 15:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.13,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-07 16:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.24,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-07 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,64.8,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-07 23:00:00,ENERGY_ANOMALY,B001,ELEVATED,-31.31,Actual energy differs significantly from forecast.
+2017-12-08 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.99,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-08 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.23,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-08 14:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.19,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-08 15:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.44,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-08 16:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,70.12,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-08 17:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,67.65,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-10 11:00:00,ENERGY_ANOMALY,B001,ELEVATED,28.36,Actual energy differs significantly from forecast.
+2017-12-10 18:00:00,ENERGY_ANOMALY,B001,ELEVATED,-29.14,Actual energy differs significantly from forecast.
+2017-12-10 20:00:00,ENERGY_ANOMALY,B001,ELEVATED,25.78,Actual energy differs significantly from forecast.
+2017-12-11 00:00:00,ENERGY_ANOMALY,B001,HIGH,61.44,Actual energy differs significantly from forecast.
+2017-12-11 00:00:00,ENERGY_ANOMALY,B003,ELEVATED,29.23,Actual energy differs significantly from forecast.
+2017-12-11 03:00:00,ENERGY_ANOMALY,B001,ELEVATED,27.12,Actual energy differs significantly from forecast.
+2017-12-11 06:00:00,ENERGY_ANOMALY,B001,ELEVATED,29.72,Actual energy differs significantly from forecast.
+2017-12-11 09:00:00,ENERGY_ANOMALY,B001,HIGH,70.0,Actual energy differs significantly from forecast.
+2017-12-11 12:00:00,PEAK_DEMAND_RISK,CAMPUS,ELEVATED,66.58,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-11 13:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.04,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-11 14:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.43,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-11 15:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.31,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-11 16:00:00,PEAK_DEMAND_RISK,CAMPUS,CRITICAL,72.06,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-11 17:00:00,PEAK_DEMAND_RISK,CAMPUS,HIGH,71.5,Predicted campus demand is approaching the simulated grid import limit.
+2017-12-11 17:00:00,ENERGY_ANOMALY,B001,HIGH,-50.42,Actual energy differs significantly from forecast.
+2017-12-11 17:00:00,ENERGY_ANOMALY,B003,ELEVATED,-35.58,Actual energy differs significantly from forecast.
+2017-12-12 10:00:00,ENERGY_ANOMALY,B001,ELEVATED,-25.12,Actual energy differs significantly from forecast.
+2017-12-23 03:00:00,ENERGY_ANOMALY,B001,ELEVATED,-28.2,Actual energy differs significantly from forecast.
+2017-12-25 09:00:00,ENERGY_ANOMALY,B001,ELEVATED,-40.05,Actual energy differs significantly from forecast.
+2017-12-25 10:00:00,ENERGY_ANOMALY,B001,ELEVATED,-40.84,Actual energy differs significantly from forecast.
+2017-12-25 11:00:00,ENERGY_ANOMALY,B001,ELEVATED,-42.29,Actual energy differs significantly from forecast.
+2017-12-25 12:00:00,ENERGY_ANOMALY,B001,ELEVATED,-40.8,Actual energy differs significantly from forecast.
+2017-12-25 13:00:00,ENERGY_ANOMALY,B001,ELEVATED,-39.3,Actual energy differs significantly from forecast.
+2017-12-25 14:00:00,ENERGY_ANOMALY,B001,ELEVATED,-36.08,Actual energy differs significantly from forecast.
+2017-12-25 15:00:00,ENERGY_ANOMALY,B001,ELEVATED,-36.85,Actual energy differs significantly from forecast.
+2017-12-26 09:00:00,ENERGY_ANOMALY,B001,ELEVATED,-29.26,Actual energy differs significantly from forecast.
+2017-12-26 14:00:00,ENERGY_ANOMALY,B001,ELEVATED,-26.24,Actual energy differs significantly from forecast.
+2017-12-26 15:00:00,ENERGY_ANOMALY,B001,ELEVATED,-28.13,Actual energy differs significantly from forecast.
+2017-12-27 09:00:00,ENERGY_ANOMALY,B001,ELEVATED,-31.4,Actual energy differs significantly from forecast.
+2017-12-27 10:00:00,ENERGY_ANOMALY,B001,ELEVATED,-30.33,Actual energy differs significantly from forecast.
+2017-12-27 11:00:00,ENERGY_ANOMALY,B001,ELEVATED,-29.62,Actual energy differs significantly from forecast.
+2017-12-27 12:00:00,ENERGY_ANOMALY,B001,ELEVATED,-32.06,Actual energy differs significantly from forecast.
+2017-12-27 14:00:00,ENERGY_ANOMALY,B001,ELEVATED,-27.43,Actual energy differs significantly from forecast.
+2017-12-28 10:00:00,ENERGY_ANOMALY,B001,ELEVATED,-29.39,Actual energy differs significantly from forecast.
+2017-12-28 11:00:00,ENERGY_ANOMALY,B001,ELEVATED,-27.49,Actual energy differs significantly from forecast.
+2017-12-28 13:00:00,ENERGY_ANOMALY,B001,ELEVATED,-25.73,Actual energy differs significantly from forecast.
+2017-12-28 14:00:00,ENERGY_ANOMALY,B001,ELEVATED,-27.3,Actual energy differs significantly from forecast.
+2017-12-28 15:00:00,ENERGY_ANOMALY,B001,ELEVATED,-26.19,Actual energy differs significantly from forecast.
+2017-12-29 09:00:00,ENERGY_ANOMALY,B001,ELEVATED,-33.84,Actual energy differs significantly from forecast.
+2017-12-29 10:00:00,ENERGY_ANOMALY,B001,ELEVATED,-35.48,Actual energy differs significantly from forecast.
+2017-12-29 11:00:00,ENERGY_ANOMALY,B001,ELEVATED,-32.85,Actual energy differs significantly from forecast.
+2017-12-29 12:00:00,ENERGY_ANOMALY,B001,ELEVATED,-33.23,Actual energy differs significantly from forecast.
+2017-12-29 13:00:00,ENERGY_ANOMALY,B001,ELEVATED,-31.75,Actual energy differs significantly from forecast.
+2017-12-29 14:00:00,ENERGY_ANOMALY,B001,ELEVATED,-27.64,Actual energy differs significantly from forecast.
+2017-12-29 15:00:00,ENERGY_ANOMALY,B001,ELEVATED,-31.48,Actual energy differs significantly from forecast.

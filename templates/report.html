@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+.report-page {
+  max-width: 1250px;
+  margin: 0 auto;
+}
+
+.report-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.report-section {
+  margin-top: 18px;
+}
+
+.report-section h2 {
+  font-size: 20px;
+  margin: 0 0 14px;
+  color: var(--gold-soft);
+}
+
+.report-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.report-meta div,
+.report-fact,
+.report-disclaimer {
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.025);
+  border-radius: 12px;
+  padding: 13px;
+}
+
+.report-meta span {
+  display: block;
+  color: var(--muted-2);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.report-meta strong {
+  display: block;
+  margin-top: 6px;
+}
+
+.report-table-wrap {
+  overflow-x: auto;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.report-table th,
+.report-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 9px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.report-table th {
+  color: var(--gold-soft);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.report-points {
+  margin: 7px 0 0 18px;
+  color: var(--muted);
+}
+
+.report-facts {
+  display: grid;
+  gap: 8px;
+}
+
+.report-lime-card {
+  border: 1px solid var(--line-gold);
+  border-radius: 15px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: rgba(222,184,92,.035);
+}
+
+.report-contribution {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.report-disclaimer {
+  color: var(--muted);
+  margin-bottom: 9px;
+}
+
+.report-empty {
+  text-align: center;
+  padding: 70px 20px;
+  color: var(--muted);
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: #111 !important;
+  }
+
+  .sidebar,
+  .topbar,
+  .footer,
+  .report-actions {
+    display: none !important;
+  }
+
+  .main {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .page-content {
+    padding: 20px !important;
+  }
+
+  .panel,
+  .report-meta div,
+  .report-fact,
+  .report-disclaimer,
+  .report-lime-card {
+    background: white !important;
+    color: #111 !important;
+    box-shadow: none !important;
+    border-color: #ccc !important;
+  }
+
+  .report-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  table,
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-table th,
+  .report-table td {
+    color: #111 !important;
+    border-color: #ccc !important;
+  }
+
+  a {
+    color: #111 !important;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="report-page">
+
+  {% if report %}
+
+  <div class="report-actions">
+    <button class="primary-btn" onclick="window.print()">
+      Print / Save as PDF
+    </button>
+
+    <a class="secondary-btn"
+       href="/api/report?format=md"
+       target="_blank">
+      Download Markdown
+    </a>
+  </div>
+
+  <section class="panel report-section">
+    <div class="panel-kicker">INCIDENT REPORT</div>
+    <h2>{{ report.report_id }}</h2>
+
+    <div class="report-meta">
+      <div>
+        <span>Generated</span>
+        <strong>{{ report.generated_at or "—" }}</strong>
+      </div>
+
+      <div>
+        <span>Agent</span>
+        <strong>{{ report.agent_id or "—" }}</strong>
+      </div>
+
+      <div>
+        <span>Final State</span>
+        <strong>{{ report.final_state or "—" }}</strong>
+      </div>
+
+      <div>
+        <span>Execution</span>
+        <strong>{{ report.execution_mode or "SIMULATED" }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel report-section">
+    <h2>Event</h2>
+
+    <div class="report-facts">
+      <div class="report-fact">
+        <strong>{{ report.event.headline or "—" }}</strong>
+      </div>
+
+      <div class="report-fact">
+        Type: {{ report.event.type or "—" }} ·
+        Building: {{ report.event.building or "—" }} ·
+        Timestamp: {{ report.event.timestamp or "—" }} ·
+        Severity: {{ report.event.severity or "—" }}
+      </div>
+
+      <div class="report-fact">
+        Value:
+        {{ report.event.value if report.event.value is not none else "—" }}
+        ·
+        {{ report.event.value_meaning or "—" }}
+      </div>
+    </div>
+
+    {% if report.event.facts %}
+    <ul class="report-points">
+      {% for fact in report.event.facts %}
+      <li>{{ fact }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+
+  <section class="panel report-section">
+    <h2>Evidence</h2>
+
+    {% set totals = report.evidence.totals %}
+
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>Energy kW</th>
+            <th>HVAC kW</th>
+            <th>Solar kW</th>
+            <th>EV kW</th>
+            <th>Occupancy %</th>
+            <th>History</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>{{ totals.energy_kw or "—" }}</td>
+            <td>{{ totals.hvac_kw or "—" }}</td>
+            <td>{{ totals.solar_kw or "—" }}</td>
+            <td>{{ totals.ev_kw or "—" }}</td>
+            <td>{{ totals.occupancy_pct or "—" }}</td>
+            <td>{{ totals.history_count or "—" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Reading time: {{ report.evidence.reading_time or "—" }}
+    </p>
+
+    {% if report.evidence.grid %}
+    <p>
+      Grid:
+      {{ report.evidence.grid.description
+         or report.evidence.grid.status
+         or "—" }}
+    </p>
+    {% endif %}
+
+    <h3>Per-building</h3>
+
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>Building</th>
+            <th>Energy</th>
+            <th>HVAC</th>
+            <th>Occupancy</th>
+            <th>Solar</th>
+            <th>EV</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for b in report.evidence.per_building %}
+          <tr>
+            <td>{{ b.building_id }}</td>
+            <td>{{ b.energy_kw or "—" }}</td>
+            <td>{{ b.hvac_kw or "—" }}</td>
+            <td>{{ b.occupancy_pct or "—" }}</td>
+            <td>{{ b.solar_kw or "—" }}</td>
+            <td>{{ b.ev_kw or "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel report-section">
+    <h2>Candidates</h2>
+
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Reduction kW</th>
+            <th>% Forecast</th>
+            <th>Score</th>
+            <th>Constraints</th>
+            <th>Verdict</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for c in report.candidates %}
+          <tr>
+            <td>
+              <strong>{{ c.label }}</strong>
+
+              {% if c.points %}
+              <ul class="report-points">
+                {% for point in c.points %}
+                <li>{{ point }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </td>
+
+            <td>{{ c.reduction_kw if c.reduction_kw is not none else "—" }}</td>
+            <td>{{ c.reduction_percent if c.reduction_percent is not none else "—" }}</td>
+            <td>{{ c.score if c.score is not none else "—" }}</td>
+            <td>
+              {% if c.constraints is sameas true %}
+                PASS
+              {% elif c.constraints is sameas false %}
+                FAIL
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td>{{ c.verdict or "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel report-section">
+    <h2>Recommendation</h2>
+
+    <div class="report-facts">
+      <div class="report-fact">
+        <strong>{{ report.recommendation.label or "—" }}</strong>
+      </div>
+
+      <div class="report-fact">
+        Reduction:
+        {{ report.recommendation.reduction_kw
+           if report.recommendation.reduction_kw is not none
+           else "—" }}
+        kW
+      </div>
+
+      <div class="report-fact">
+        Source:
+        {{ report.recommendation.source or "—" }}
+      </div>
+
+      <div class="report-fact">
+        Basis:
+        {{ report.recommendation.basis or "—" }}
+      </div>
+    </div>
+
+    {% if report.recommendation.reason_points %}
+    <ul class="report-points">
+      {% for point in report.recommendation.reason_points %}
+      <li>{{ point }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </section>
+
+  <section class="panel report-section">
+    <h2>Decisions</h2>
+
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Operator</th>
+            <th>Decision</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for d in report.decisions %}
+          <tr>
+            <td>{{ d.time or "—" }}</td>
+            <td>Operator</td>
+            <td>{{ d.decision or "—" }}</td>
+            <td>{{ d.message or "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel report-section">
+    <h2>Verification</h2>
+
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Intended</th>
+            <th>Verified</th>
+            <th>Expected kW</th>
+            <th>Achieved kW</th>
+            <th>Performance %</th>
+            <th>Threshold %</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for v in report.verification %}
+          <tr>
+            <td>{{ v.time or "—" }}</td>
+            <td>{{ v.intended_action or "—" }}</td>
+            <td>{{ v.verified_action or "—" }}</td>
+            <td>{{ v.expected_reduction_kw or "—" }}</td>
+            <td>{{ v.achieved_reduction_kw or "—" }}</td>
+            <td>{{ v.performance_percent or "—" }}</td>
+            <td>{{ v.threshold_percent or "—" }}</td>
+            <td>{{ v.status or "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel report-section">
+    <h2>Timeline</h2>
+
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>State</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for item in report.timeline %}
+          <tr>
+            <td>{{ item.time or "—" }}</td>
+            <td>{{ item.state or "—" }}</td>
+            <td>{{ item.message or "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {% if report.lime %}
+
+  <section class="panel report-section">
+    <h2>LIME Explanation</h2>
+
+    <p>
+      <strong>
+        LIME explains the forecasting model's reasoning, not the real-world cause.
+      </strong>
+    </p>
+
+    {% set lime_items =
+       report.lime.buildings
+       if report.lime.building_id == "CAMPUS"
+       else [report.lime] %}
+
+    {% for item in lime_items %}
+
+    <div class="report-lime-card">
+      <h3>{{ item.building_id }}</h3>
+
+      <p>
+        Predicted:
+        {{ item.predicted_kw }} kW ·
+        Actual:
+        {{ item.actual_kw if item.actual_kw is not none else "—" }} kW ·
+        Local fit R²:
+        {{ item.lime_score if item.lime_score is not none else "—" }}
+      </p>
+
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Condition</th>
+              <th>Weight kW</th>
+              <th>Direction</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for c in item.contributions %}
+            <tr>
+              <td>{{ c.feature }}</td>
+              <td>{{ c.condition }}</td>
+              <td>{{ c.weight_kw }}</td>
+              <td>{{ c.direction }}</td>
+              <td>{{ c.value if c.value is not none else "—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% endfor %}
+  </section>
+
+  {% endif %}
+
+  <section class="panel report-section">
+    <h2>Disclaimers</h2>
+
+    {% for disclaimer in report.disclaimers %}
+    <div class="report-disclaimer">
+      {{ disclaimer }}
+    </div>
+    {% endfor %}
+  </section>
+
+  {% else %}
+
+  <section class="panel report-empty">
+    <h2>No incident report yet</h2>
+    <p>
+      Run an analysis first. The incident report will be available after
+      the agent has an event.
+    </p>
+  </section>
+
+  {% endif %}
+
+</div>
+
+{% endblock %}

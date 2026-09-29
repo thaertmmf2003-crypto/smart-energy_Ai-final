@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <div>
+    <div class="kicker">AI OPERATIONS</div>
+    <h2>Autonomous reasoning with a human gate.</h2>
+    <p>Run an event through detection, evidence gathering, forecasting, simulation, approval and verification.</p>
+  </div>
+  <div class="operation-controls">
+    <label class="demo-path"><span>DEMO PATH</span>
+      <select id="demo-path">
+        <option value="auto">Any available event</option>
+        <option value="standard">Event that verifies</option>
+        <option value="replanning">Event that needs replanning</option>
+      </select>
+    </label>
+    <button class="primary-btn" id="run-agent">Run AI analysis <span>✦</span></button>
+  </div>
+</section>
+
+<section class="lifecycle" id="lifecycle">
+  <div class="life-step" data-state="MONITORING"><span>01</span><b>Monitoring</b></div>
+  <div class="life-step" data-state="INVESTIGATING"><span>02</span><b>Investigating</b></div>
+  <div class="life-step" data-state="GATHERING_EVIDENCE"><span>03</span><b>Evidence</b></div>
+  <div class="life-step" data-state="ANALYZING"><span>04</span><b>Analyzing</b></div>
+  <div class="life-step" data-state="FORECASTING"><span>05</span><b>Forecast</b></div>
+  <div class="life-step" data-state="SIMULATING"><span>06</span><b>Digital Twin</b></div>
+  <div class="life-step" data-state="VALIDATING"><span>07</span><b>Validating</b></div>
+  <div class="life-step gate" data-state="WAITING_FOR_APPROVAL"><span>08</span><b>Human Gate</b></div>
+  <div class="life-step" data-state="EXECUTING"><span>09</span><b>Execute</b></div>
+  <div class="life-step" data-state="VERIFYING"><span>10</span><b>Verify</b></div>
+  <div class="life-step" data-state="COMPLETED"><span>11</span><b>Complete</b></div>
+</section>
+
+<section class="story-grid">
+  <article class="panel story problem">
+    <div class="panel-kicker">01 · WHAT HAPPENED</div>
+    <h3 id="op-problem-title">No active event</h3>
+    <p id="op-problem-text">Run an analysis to let the agent investigate a real event from the dataset.</p>
+    <div class="notice" id="op-selection-note" hidden></div>
+    <div class="event-id" id="op-event-id">—</div>
+  </article>
+
+  <article class="panel story evidence">
+    <div class="panel-kicker">02 · WHAT THE AGENT CHECKED</div>
+    <h3>Operational evidence</h3>
+    <div id="op-evidence" class="evidence-grid"></div>
+    <div id="op-per-building" class="per-building" hidden></div>
+    <p id="op-evidence-foot" class="panel-footnote">Readings at the event hour (—). History covers the 24 hours up to the event.</p>
+  </article>
+
+  <article class="panel story candidates">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px;">
+      <div>
+        <div class="panel-kicker">03 · WHAT THE DIGITAL TWIN SIMULATED</div>
+        <h3 style="margin: 0;">Candidate actions</h3>
+      </div>
+      <a href="{{ url_for('pages.digital_twin') }}" class="secondary-btn" style="font-size: 11px; padding: 6px 12px; white-space: nowrap;">Go to Digital Twin →</a>
+    </div>
+    <div id="op-candidates" class="candidate-list"></div>
+    <div id="op-replan-scope" class="notice" hidden></div>
+    <div id="op-constraints" class="constraint-summary"></div>
+  </article>
+
+  <article class="panel story recommendation">
+    <div class="panel-kicker">04 · AI RECOMMENDATION</div>
+    <div id="op-recommendation" class="recommendation-box">
+      <div class="empty-state">Waiting for simulation results.</div>
+    </div>
+    <div class="recommendation-actions">
+      <button class="secondary-btn" id="explain-forecast" disabled>Explain forecast</button>
+      <button class="secondary-btn" id="download-pdf" disabled>Download PDF report</button>
+    </div>
+  </article>
+  
+  <article class="panel story explanation" id="explanation-section">
+    <div class="panel-kicker">ML EXPLANATION</div>
+    <h3>Why did the model forecast this?</h3>
+    <p class="panel-footnote">LIME fits a local surrogate around this single prediction. It explains the
+    forecasting model's reasoning, not the real-world cause of the event.</p>
+    <div id="explanation-result" class="empty-state">Run an analysis, then explain its forecast.</div>
+  </article>
+
+  <article class="panel story decision">
+    <div class="panel-kicker">05 · YOUR DECISION</div>
+    <div class="decision-box">
+      <div class="decision-state" id="op-decision-state">WAITING</div>
+      <p id="op-decision-text">The agent will stop before execution and request human approval.</p>
+      <div id="op-replan" class="replan-callout" hidden></div>
+      <div class="decision-actions">
+        <button class="primary-btn" id="approve-agent" disabled>Approve</button>
+        <button class="secondary-btn" id="reject-agent" disabled>Reject</button>
+      </div>
+    </div>
+  </article>
+
+</section>
+{% endblock %}

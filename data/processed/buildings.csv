@@ -1,0 +1,4 @@
+building_id,building_name,building_type,floor_area_m2,source_building_id,source_site_id,source_type,data_source
+B001,Administration,administration,4161.0,Robin_office_Gayle,Robin,Office,Building Data Genome 2
+B002,Labs,laboratory,7579.0,Robin_education_Megan,Robin,College Laboratory,Building Data Genome 2
+B003,Classrooms,classroom,4703.0,Robin_education_Kiera,Robin,College Classroom,Building Data Genome 2

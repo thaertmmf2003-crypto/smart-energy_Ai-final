@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <div>
+    <div class="kicker">AI KNOWLEDGE</div>
+    <h2>Ask the knowledge layer about the operation.</h2>
+    <p>Use the RAG service to retrieve project knowledge and optionally ground the answer in the current agent run.</p>
+  </div>
+</section>
+
+<section class="knowledge-layout">
+  <article class="panel knowledge-chat">
+    <div class="chat-head">
+      <div class="knowledge-avatar">✦</div>
+      <div><div class="panel-kicker">RESEARCH & OPERATIONS COPILOT</div><h3>Smart Energy Knowledge</h3></div>
+      <span class="ready-badge" id="rag-status">—</span>
+    </div>
+
+    <div id="rag-answer" class="rag-answer">
+      <div class="empty-state">Ask a question to retrieve project knowledge.</div>
+    </div>
+
+    <div class="quick-questions">
+      <button data-question="What is the agentic workflow in this project?">Agentic workflow</button>
+      <button data-question="How does the Digital Twin fit into the decision process?">Digital Twin</button>
+      <button data-question="How is an energy anomaly investigated?">Anomaly investigation</button>
+      <button data-question="How does verification trigger replanning?">Verification & replanning</button>
+      <button data-question="What was the energy consumption on 2016-07-01?">Energy on 2016-07-01</button>
+      <button data-question="Which day had the highest consumption in 2017?">Peak day 2017</button>
+      <button data-question="كم كان استهلاك المختبرات في شهر تموز 2017؟">استهلاك المختبرات تموز 2017</button>
+      <button data-question="What was the action success rate?">Action success rate</button>
+    </div>
+
+    <form id="rag-form" class="chat-form">
+      <input id="rag-input" type="text" placeholder="Ask about the project or its data, e.g. energy on 2016-07-01, peak day in 2017..." autocomplete="off">
+      <label class="context-toggle"><input type="checkbox" id="rag-context"> Include current run</label>
+      <button class="primary-btn" type="submit">Ask AI <span>→</span></button>
+    </form>
+  </article>
+
+  <aside class="panel knowledge-side">
+    <div class="panel-kicker">CURRENT CONTEXT</div>
+    <h3>Agent grounding</h3>
+    <div id="rag-context-card" class="context-card"></div>
+    <div class="panel-kicker spaced">KNOWLEDGE SOURCES</div>
+    <div class="source-list">
+      <div><b>Project documents</b><span>Indexed RAG knowledge base</span></div>
+      <div><b>Operational context</b><span>Optional current agent state</span></div>
+      <div><b>Energy data</b><span>Readings, events and actions in energy.db (2016-01-01 → 2017-12-31)</span></div>
+    </div>
+  </aside>
+</section>
+{% endblock %}

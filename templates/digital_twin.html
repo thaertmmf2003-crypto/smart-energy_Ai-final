@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <div>
+    <div class="kicker">DIGITAL TWIN</div>
+    <h2>Test the intervention before touching the system.</h2>
+    <p>Compare candidate actions using the simulation results produced by the agent lifecycle.</p>
+  </div>
+  <a class="primary-btn" href="{{ url_for('pages.operations') }}">Open current operation →</a>
+</section>
+
+<section class="panel twin-banner">
+  <div class="twin-orb">◇</div>
+  <div>
+    <div class="panel-kicker">SIMULATION ENVIRONMENT</div>
+    <h3>Operational decisions are evaluated virtually first.</h3>
+    <p>The selected action is not sent to physical equipment. Execution remains explicitly simulated for the demo.</p>
+  </div>
+  <div class="sim-badge large">SIMULATED</div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><div class="panel-kicker">SCENARIO COMPARISON</div><h3>Candidate actions</h3></div>
+    <div id="twin-event" class="event-id">No active event</div>
+  </div>
+  <div id="twin-candidates" class="twin-grid">
+    <div class="empty-state">Run AI analysis from AI Operations to populate the Digital Twin.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- INTERACTIVE WHAT-IF EXPERIMENT LAB                            -->
+<!-- Try your own mix of actions. Nothing here is sent to the     -->
+<!-- system: it is a virtual experiment against the active event. -->
+<!-- ============================================================ -->
+<section class="panel twin-lab" id="twin-lab">
+  <div class="panel-head">
+    <div>
+      <div class="panel-kicker">WHAT-IF EXPERIMENT</div>
+      <h3>Try your own intervention</h3>
+      <p class="twin-lab-sub">Move the controls to test a mix of actions against the active event. The meter reacts live and compares your result with the agent's best solution.</p>
+    </div>
+    <div class="sim-badge large">EXPERIMENT ONLY · NOT APPLIED</div>
+  </div>
+
+  <div id="twin-lab-empty" class="empty-state">Run an AI analysis (from AI Operations) to load an event, then experiment here.</div>
+
+  <div id="twin-lab-body" hidden>
+    <div class="twin-lab-grid">
+      <!-- LEFT: live reduction gauge -->
+      <div class="twin-gauge-col">
+        <div class="twin-gauge-wrap">
+          <svg viewBox="0 0 200 116" class="twin-gauge" aria-hidden="true">
+            <path class="gauge-track" d="M20 100 A80 80 0 0 1 180 100" />
+            <path class="gauge-fill" id="gauge-fill" d="M20 100 A80 80 0 0 1 180 100" />
+            <line class="gauge-target" id="gauge-target" x1="100" y1="100" x2="100" y2="28" />
+            <line class="gauge-needle" id="gauge-needle" x1="100" y1="100" x2="100" y2="34" />
+            <circle class="gauge-hub" cx="100" cy="100" r="6" />
+          </svg>
+          <div class="twin-gauge-read">
+            <div class="twin-gauge-pct" id="lab-reduction-pct">0.0%</div>
+            <div class="twin-gauge-cap">load reduction</div>
+          </div>
+        </div>
+        <div class="twin-gauge-legend">
+          <span><i class="dot dot-fill"></i>Your experiment</span>
+          <span><i class="dot dot-target"></i>Agent best (<b id="lab-benchmark-pct">—</b>)</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: controls -->
+      <div class="twin-controls">
+        <div class="twin-slider">
+          <label>HVAC setpoint cut <span class="twin-slider-val" id="lab-hvac-val">15%</span></label>
+          <input type="range" id="lab-hvac" min="0" max="30" step="1" value="15">
+          <div class="twin-slider-hint">Agent default 15% · from <b id="lab-hvac-load">—</b> kW HVAC</div>
+        </div>
+        <div class="twin-slider">
+          <label>EV charging shift <span class="twin-slider-val" id="lab-ev-val">80%</span></label>
+          <input type="range" id="lab-ev" min="0" max="100" step="5" value="80">
+          <div class="twin-slider-hint">Agent default 80% · from <b id="lab-ev-load">—</b> kW EV load</div>
+        </div>
+        <div class="twin-slider">
+          <label>Battery discharge <span class="twin-slider-val" id="lab-batt-val">25 kW</span></label>
+          <input type="range" id="lab-batt" min="0" max="25" step="1" value="25">
+          <div class="twin-slider-hint">Max 25 kW · battery SOC <b id="lab-batt-soc">—</b></div>
+        </div>
+        <div class="twin-lab-actions">
+          <button type="button" class="secondary-btn" id="lab-match">Match agent</button>
+          <button type="button" class="secondary-btn" id="lab-zero">Clear all</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTCOME NUMBERS -->
+    <div class="twin-lab-metrics">
+      <div class="twin-metric"><span>Total reduction</span><b id="lab-reduction-kw">0.0 kW</b></div>
+      <div class="twin-metric"><span>New load</span><b id="lab-new-load">— kW</b></div>
+      <div class="twin-metric"><span>Bill saving</span><b id="lab-jod">— JOD</b></div>
+      <div class="twin-metric"><span>CO₂ avoided</span><b id="lab-co2">— kg</b></div>
+    </div>
+
+    <!-- LIVE VERDICT -->
+    <div id="lab-verdict" class="twin-verdict"></div>
+    <p class="twin-lab-foot">Estimates from the same simulation math the agent uses. This experiment is never executed and never sent to equipment.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- INSIGHT PANELS: model self-audit (idea #3) + learned         -->
+<!-- confidence (idea #2). Read-only; fetched on load.            -->
+<!-- ============================================================ -->
+<section class="two-col">
+  <article class="panel insight-panel">
+    <div class="panel-kicker">MODEL SELF-AUDIT</div>
+    <h3>Holiday blind spot</h3>
+    <div id="holiday-audit" class="insight-body"><div class="empty-state">Loading…</div></div>
+  </article>
+  <article class="panel insight-panel">
+    <div class="panel-kicker">LEARNED CONFIDENCE</div>
+    <h3>Track record by action</h3>
+    <div id="agent-learning" class="insight-body"><div class="empty-state">Loading…</div></div>
+  </article>
+</section>
+
+<section class="two-col">
+  <article class="panel">
+    <div class="panel-kicker">SELECTION LOGIC</div>
+    <h3>How the agent chooses</h3>
+    <div class="logic-list">
+      <div><span>01</span><b>Safety constraints</b><em>Reject unsafe or invalid actions.</em></div>
+      <div><span>02</span><b>Operational feasibility</b><em>Check building and system limits.</em></div>
+      <div><span>03</span><b>Estimated impact</b><em>Compare predicted energy reduction.</em></div>
+      <div><span>04</span><b>Human approval</b><em>Require a decision before execution.</em></div>
+    </div>
+  </article>
+  <article class="panel">
+    <div class="panel-kicker">CURRENT ACTION</div>
+    <h3 id="twin-selected">No action selected</h3>
+    <div id="twin-selected-meta" class="metric-stack"></div>
+  </article>
+</section>
+{% endblock %}

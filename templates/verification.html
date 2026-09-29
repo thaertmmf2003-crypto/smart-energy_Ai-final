@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <div>
+    <div class="kicker">VERIFICATION</div>
+    <h2>Close the loop with measured evidence.</h2>
+    <p>Verification compares the simulated outcome with the expected operational target.</p>
+  </div>
+  <div class="sim-badge large">SIMULATED EXECUTION</div>
+</section>
+
+<section class="kpi-grid compact">
+  <article class="kpi-card"><div class="kpi-label">VERIFICATION STATUS</div><div class="kpi-value smallish" id="ver-status">—</div><div class="kpi-meta">latest result</div></article>
+  <article class="kpi-card"><div class="kpi-label">EXPECTED SAVING</div><div class="kpi-value gold" id="ver-expected">—</div><div class="kpi-meta">kW</div></article>
+  <article class="kpi-card"><div class="kpi-label">OBSERVED SAVING</div><div class="kpi-value" id="ver-observed">—</div><div class="kpi-meta">kW</div></article>
+  <article class="kpi-card"><div class="kpi-label">PERFORMANCE RATIO</div><div class="kpi-value" id="ver-performance">—</div><div class="kpi-meta">% ratio</div></article>
+  <article class="kpi-card"><div class="kpi-label">THRESHOLD</div><div class="kpi-value" id="ver-threshold">—</div><div class="kpi-meta">verification criterion</div></article>
+</section>
+
+<!-- AGENT EXECUTION ROADMAP — decision flowchart (rendered by app.js: buildAgentFlow / updateAgentFlow) -->
+<section class="panel af-panel" id="agent-roadmap">
+  <div class="af-head">
+    <div>
+      <div class="panel-kicker">AGENT EXECUTION ROADMAP</div>
+      <h3>Autonomous decision flow</h3>
+      <p class="af-subtitle">11 stages · 4 decision points · human in the loop · closed-loop verification</p>
+    </div>
+    <div class="af-status">
+      <div class="af-status-row">
+        <span class="af-dot" id="af-dot"></span>
+        <span class="af-status-label">Current state</span>
+        <strong id="overview-path-current-state">MONITORING</strong>
+      </div>
+      <div class="af-progress"><span id="af-progress-bar"></span></div>
+      <div class="af-status-meta"><span id="af-stage">Stage 1 / 11</span><span id="af-time">—</span></div>
+      <button class="primary-btn af-run" id="af-run" type="button">Run live demo <span>▶</span></button>
+    </div>
+  </div>
+
+  <div class="af-wrap" id="agent-flow" aria-label="Agent decision flowchart"></div>
+
+  <div class="af-foot">
+    <div class="af-legend">
+      <span><i class="lg-done"></i>Completed</span>
+      <span><i class="lg-live"></i>Active now</span>
+      <span><i class="lg-pending"></i>Pending</span>
+      <span><i class="lg-loop"></i>Feedback loop</span>
+      <span><i class="lg-danger"></i>Stop / rejected</span>
+    </div>
+    <div class="af-now" id="af-now">Run an analysis to trace the agent through the flow.</div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><div class="panel-kicker">AGENT HISTORY</div><h3>Verification trail</h3></div></div>
+  <div id="verification-history" class="timeline-list"></div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><div class="panel-kicker">WHAT THIS MEANS</div><h3>Verification is a second decision layer</h3></div></div>
+  <div class="explain-grid">
+    <div><span>EXPECTED</span><b>What the simulation predicted</b><p>Target impact calculated before the action.</p></div>
+    <div><span>OBSERVED</span><b>What the simulated execution produced</b><p>Outcome measured after the action.</p></div>
+    <div><span>DECISION</span><b>Pass or replan</b><p>If the result is insufficient, the agent can select an alternative.</p></div>
+  </div>
+</section>
+{% endblock %}

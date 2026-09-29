@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Energy AI Operations Center</title>
+  <meta name="description" content="AI-powered monitoring, simulation and optimization for campus energy operations.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2305080A'/><path d='M18 4 8 18h7l-2 10 11-15h-7z' fill='%2354D1A6'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+<div class="shell">
+
+  <!-- ============================ SIDEBAR ============================ -->
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <defs><linearGradient id="bm" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#6FE0B8"/><stop offset="1" stop-color="#4FB9D2"/></linearGradient></defs>
+        <rect width="32" height="32" rx="9" fill="url(#bm)"/>
+        <path d="M18 5 9 18h6.5l-1.8 9L23 14h-6.5z" fill="#05080A"/>
+      </svg>
+      <div>
+        <div class="brand-name">Smart Energy AI</div>
+        <div class="brand-sub">Autonomous Operations</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#overview" class="nav-link is-active" data-section="overview">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 3h6v6H3zM11 3h6v4h-6zM11 9h6v8h-6zM3 11h6v6H3z"/></svg>Overview</a>
+      <a href="#energy" class="nav-link" data-section="energy">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 15l4-5 3 3 4-6 5 5"/></svg>Energy Monitor</a>
+      <a href="#operations" class="nav-link" data-section="operations">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3"/><path d="M10 2v3M10 15v3M2 10h3M15 10h3"/></svg>AI Operations</a>
+      <a href="#digital-twin" class="nav-link" data-section="digital-twin">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="7" height="12" rx="1.5"/><rect x="10.5" y="4" width="7" height="12" rx="1.5"/></svg>Digital Twin</a>
+      <a href="#verification" class="nav-link" data-section="verification">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2l6 2.5v5c0 4-3 6.5-6 8.5-3-2-6-4.5-6-8.5v-5z"/><path d="M7 10l2 2 4-4"/></svg>Verification</a>
+      <a href="#knowledge" class="nav-link" data-section="knowledge">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4.5C5 3.5 7.5 3.5 10 5c2.5-1.5 5-1.5 7-.5v11c-2-1-4.5-1-7 .5-2.5-1.5-5-1.5-7-.5z"/><path d="M10 5v11"/></svg>AI Knowledge</a>
+      <a href="#activity" class="nav-link" data-section="activity">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5h12M4 10h12M4 15h8"/></svg>Activity Log</a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="agent-chip" id="sidebarAgent" data-tone="idle">
+        <span class="agent-chip-dot"></span>
+        <div>
+          <div class="agent-chip-name">Agent_Alpha</div>
+          <div class="agent-chip-state" id="sidebarAgentState">Monitoring</div>
+        </div>
+      </div>
+      <p class="sidebar-note">Execution is simulated. No building equipment is controlled from this console.</p>
+    </div>
+  </aside>
+
+  <!-- ============================ MAIN ============================ -->
+  <main class="main">
+
+    <!-- ---------- Header ---------- -->
+    <header class="topbar" id="overview">
+      <div class="topbar-title">
+        <h1>Energy Operations Center</h1>
+        <p>AI-powered monitoring, simulation and optimization</p>
+      </div>
+      <div class="system-status" id="systemStatus" role="status" data-tone="pending">
+        <span class="pulse"></span><span id="systemStatusText">Connecting…</span>
+      </div>
+    </header>
+
+    <div class="controlbar">
+      <div class="segmented" role="radiogroup" aria-label="Building" id="buildingSelector">
+        <button type="button" role="radio" aria-checked="true" data-building="CAMPUS" class="is-active">Campus</button>
+        <button type="button" role="radio" aria-checked="false" data-building="B001">B001 <span>Administration</span></button>
+        <button type="button" role="radio" aria-checked="false" data-building="B002">B002 <span>Labs</span></button>
+        <button type="button" role="radio" aria-checked="false" data-building="B003">B003 <span>Classrooms</span></button>
+      </div>
+      <div class="run-group">
+        <label class="select-wrap" title="Which recorded event the demo should pick">
+          <span class="sr-only">Demo path</span>
+          <select id="scenarioSelect">
+            <option value="auto">Any available event</option>
+            <option value="standard">Event that verifies</option>
+            <option value="replanning">Event that needs replanning</option>
+          </select>
+        </label>
+        <button type="button" class="btn btn-primary" id="runBtn">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z"/></svg>
+          Run AI analysis
+        </button>
+      </div>
+    </div>
+
+    <p class="data-note" id="dataNote">Loading operational data…</p>
+
+    <!-- ---------- KPI row ---------- -->
+    <section class="kpis" aria-label="Key indicators">
+      <article class="kpi">
+        <h2 class="kpi-label">Current load</h2>
+        <div class="kpi-value"><span id="kpiLoad">—</span><small>kW</small></div>
+        <p class="kpi-sub" id="kpiLoadSub">Latest meter reading</p>
+      </article>
+      <article class="kpi">
+        <h2 class="kpi-label">Solar generation</h2>
+        <div class="kpi-value"><span id="kpiSolar">—</span><small>kW</small></div>
+        <p class="kpi-sub" id="kpiSolarSub">Latest solar reading</p>
+      </article>
+      <article class="kpi">
+        <h2 class="kpi-label">Anomalies detected</h2>
+        <div class="kpi-value"><span id="kpiAnomalies">—</span></div>
+        <p class="kpi-sub" id="kpiAnomaliesSub">From the ML event history</p>
+      </article>
+      <article class="kpi kpi-accent">
+        <h2 class="kpi-label">Estimated reduction</h2>
+        <div class="kpi-value"><span id="kpiSaving">—</span><small id="kpiSavingUnit">kW</small></div>
+        <p class="kpi-sub" id="kpiSavingSub">Run an analysis to get a recommendation</p>
+      </article>
+    </section>
+
+    <!-- ---------- Energy monitor ---------- -->
+    <section class="grid grid-energy" id="energy" aria-labelledby="energyTitle">
+      <article class="card card-chart">
+        <header class="card-head">
+          <div>
+            <h2 id="energyTitle">Consumption and solar</h2>
+            <p class="card-sub" id="chartCaption">Hourly readings from the operations database</p>
+          </div>
+          <div class="chart-toggles" role="group" aria-label="Chart series">
+            <button type="button" class="toggle is-on" data-series="0" aria-pressed="true"><i class="sw sw-cyan"></i>Consumption</button>
+            <button type="button" class="toggle is-on" data-series="1" aria-pressed="true"><i class="sw sw-emerald"></i>Solar</button>
+            <button type="button" class="toggle" data-series="2" aria-pressed="false"><i class="sw sw-violet"></i>HVAC</button>
+          </div>
+        </header>
+        <div class="chart-wrap">
+          <canvas id="energyChart" aria-label="Energy consumption and solar generation over time" role="img"></canvas>
+          <p class="chart-empty" id="chartEmpty" hidden></p>
+        </div>
+      </article>
+
+      <article class="card card-feed">
+        <header class="card-head">
+          <div>
+            <h2>ML event feed</h2>
+            <p class="card-sub" id="feedCaption">Prediction events from the ML pipeline</p>
+          </div>
+        </header>
+        <ol class="feed" id="eventFeed">
+          <li class="feed-empty">Loading events…</li>
+        </ol>
+      </article>
+    </section>
+
+    <!-- ---------- AI operations ---------- -->
+    <section class="ops" id="operations" aria-labelledby="opsTitle">
+      <header class="ops-head">
+        <div>
+          <h2 id="opsTitle">AI operations</h2>
+          <p class="card-sub">Each step is produced by the existing agent, tools, digital twin and optimizer.</p>
+        </div>
+        <div class="state-pill" id="statePill" data-tone="idle" role="status">
+          <span class="state-dot"></span><span id="statePillText">Monitoring</span>
+        </div>
+      </header>
+
+      <!-- Lifecycle track -->
+      <div class="track card" aria-label="Agent lifecycle">
+        <ol class="track-rail" id="trackRail"></ol>
+        <div class="track-replan" id="trackReplan" hidden>
+          <span class="replan-icon" aria-hidden="true">↺</span>
+          <span id="trackReplanText"></span>
+        </div>
+        <p class="track-caption" id="trackCaption">The agent is idle. Run an AI analysis to start the lifecycle.</p>
+      </div>
+
+      <div class="notice" id="selectionNote" hidden></div>
+      <div class="notice notice-error" id="agentError" hidden></div>
+
+      <div class="grid grid-story">
+
+        <!-- 1 Problem -->
+        <article class="card story story-problem" id="problemCard">
+          <header class="story-head"><span class="step">1</span><h3>What happened</h3></header>
+          <div id="problemBody" class="story-body">
+            <p class="empty">No event under investigation.</p>
+          </div>
+        </article>
+
+        <!-- 2 Evidence -->
+        <article class="card story story-evidence">
+          <header class="story-head"><span class="step">2</span><h3>What the agent checked</h3></header>
+          <div id="evidenceBody" class="story-body">
+            <p class="empty">Evidence appears once the agent investigates an event.</p>
+          </div>
+        </article>
+
+        <!-- 3 Candidates -->
+        <article class="card story story-candidates" id="digital-twin">
+          <header class="story-head"><span class="step">3</span><h3>What the digital twin simulated</h3></header>
+          <div id="candidatesBody" class="story-body">
+            <p class="empty">Candidate actions appear after simulation.</p>
+          </div>
+        </article>
+
+        <!-- 4 + 5 Recommendation & decision -->
+        <div class="story-stack">
+          <article class="card story story-rec" id="recCard">
+            <header class="story-head"><span class="step">4</span><h3>AI recommendation</h3></header>
+            <div id="recBody" class="story-body">
+              <p class="empty">No recommendation yet.</p>
+            </div>
+          </article>
+
+          <article class="card story story-decision" id="decisionCard" data-state="idle">
+            <header class="story-head"><span class="step">5</span><h3>Your decision</h3></header>
+            <div class="story-body">
+              <p class="decision-text" id="decisionText">Nothing is waiting for approval.</p>
+              <div class="decision-actions">
+                <button type="button" class="btn btn-approve" id="approveBtn" disabled>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>Approve action
+                </button>
+                <button type="button" class="btn btn-ghost" id="rejectBtn" disabled>Reject</button>
+              </div>
+              <p class="decision-foot">Approval starts a simulated execution. No physical equipment is controlled.</p>
+            </div>
+          </article>
+        </div>
+
+        <!-- 6 Verification -->
+        <article class="card story story-verify" id="verification">
+          <header class="story-head"><span class="step">6</span><h3>Did it work</h3></header>
+          <div id="verifyBody" class="story-body">
+            <p class="empty">Verification runs after an approved action has been executed in simulation.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ---------- Knowledge + activity ---------- -->
+    <section class="grid grid-bottom">
+      <article class="card knowledge" id="knowledge" aria-labelledby="kbTitle">
+        <header class="card-head">
+          <div>
+            <h2 id="kbTitle">AI Knowledge</h2>
+            <p class="card-sub" id="kbStatus">Answers come from the energy knowledge base, with sources.</p>
+          </div>
+        </header>
+        <div class="chips" id="kbChips">
+          <button type="button" class="chip">Why can reducing HVAC load reduce building energy consumption?</button>
+          <button type="button" class="chip">What is demand response?</button>
+          <button type="button" class="chip">How does the optimizer choose an action?</button>
+          <button type="button" class="chip">Why does solar output drop on hot days?</button>
+          <button type="button" class="chip">Why keep a battery SOC reserve?</button>
+        </div>
+        <div class="thread" id="kbThread" aria-live="polite"></div>
+        <form class="ask" id="kbForm" autocomplete="off">
+          <label class="sr-only" for="kbInput">Ask the knowledge base</label>
+          <input id="kbInput" type="text" maxlength="1000" placeholder="Ask about HVAC, solar, demand response, efficiency…">
+          <label class="ask-live" title="Send a summary of the current agent run with the question">
+            <input type="checkbox" id="kbLive"> Include current run
+          </label>
+          <button type="submit" class="btn btn-primary btn-sm" id="kbSend">Ask</button>
+        </form>
+      </article>
+
+      <article class="card activity" id="activity" aria-labelledby="actTitle">
+        <header class="card-head">
+          <div>
+            <h2 id="actTitle">Activity log</h2>
+            <p class="card-sub">Recorded by the agent, oldest first</p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" id="resetBtn" title="Start a fresh agent session">Reset agent</button>
+        </header>
+        <ol class="log" id="activityLog">
+          <li class="log-empty">No activity yet.</li>
+        </ol>
+      </article>
+    </section>
+
+    <footer class="foot">
+      Flask dashboard over the existing Smart Energy AI agent, tools, ML service and SQLite database. Operational values are replayed from the project dataset.
+    </footer>
+  </main>
+</div>
+
+<div class="toasts" id="toasts" aria-live="assertive"></div>
+
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

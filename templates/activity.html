@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <div>
+    <div class="kicker">ACTIVITY LOG</div>
+    <h2>Every autonomous decision leaves a trail.</h2>
+    <p>Review lifecycle transitions, events and the operational history of the current agent session.</p>
+  </div>
+  <button class="secondary-btn danger-outline" id="reset-agent">Reset agent session</button>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><div class="panel-kicker">AGENT HISTORY</div><h3>Lifecycle activity</h3></div></div>
+  <div id="activity-history" class="timeline-list"></div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><div class="panel-kicker">SESSION</div><h3>Current agent state</h3></div></div>
+  <div class="session-grid">
+    <div><span>State</span><strong id="activity-state">—</strong></div>
+    <div><span>Event</span><strong id="activity-event">—</strong></div>
+    <div><span>Mode</span><strong>SIMULATED</strong></div>
+    <div><span>Approval</span><strong id="activity-approval">—</strong></div>
+  </div>
+</section>
+{% endblock %}

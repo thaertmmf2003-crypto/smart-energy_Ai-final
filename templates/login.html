@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign In · Smart Energy AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/i18n_theme.js') }}"></script>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div style="position: absolute; top: 24px; right: 28px; display: flex; gap: 12px; z-index: 10;">
+      <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme(event)" title="Toggle Theme">☀️</button>
+      <button class="lang-toggle-btn" id="lang-toggle" onclick="toggleLanguage(event)" title="Toggle Language">العربية</button>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-brand-mark">SE</div>
+        <h2 data-i18n="auth_signin_title">Sign In</h2>
+        <p data-i18n="auth_signin_sub">Enter your credentials to access the Operations Center</p>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;">
+            {% for category, message in messages %}
+              <div class="flash-alert alert-{{ category }}" style="padding: 10px 14px; font-size: 12px;">
+                <span>{{ message }}</span>
+                <button type="button" class="alert-close" onclick="this.parentElement.remove()">×</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}" class="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="login_term" data-i18n="auth_login_label">Username or Email</label>
+          <div class="form-input-wrap">
+            <input type="text" id="login_term" name="login_term" class="form-input" value="{{ login_term or '' }}" placeholder="e.g. admin or admin@smartenergy.ai" required autofocus>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+            <label class="form-label" for="password" style="margin-bottom: 0;" data-i18n="auth_password_label">Password</label>
+            <a href="{{ url_for('auth.forgot_password') }}" class="forgot-capsule" style="font-size: 11px; color: var(--gold-soft); text-decoration: none; padding: 2px 9px; border-radius: 999px; background: rgba(222, 184, 92, 0.08); border: 1px solid rgba(222, 184, 92, 0.22); transition: all 0.2s;" data-i18n="auth_forgot_pwd">Forgot password?</a>
+          </div>
+          <div class="form-input-wrap">
+            <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+            <button type="button" class="pwd-toggle-btn" onclick="togglePwdVisibility('password', this)" title="Show/Hide Password">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" id="login-btn" class="hero-action full" style="margin-top: 8px;" data-i18n="auth_signin_btn">Sign In</button>
+      </form>
+
+      <div class="auth-footer">
+        <span data-i18n="auth_no_account">Don't have an account?</span>
+        <a href="{{ url_for('auth.register') }}" data-i18n="auth_register_link">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePwdVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🔒';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+      }
+    }
+
+    document.querySelector('.auth-form').addEventListener('submit', function() {
+      const btn = document.getElementById('login-btn');
+      if (btn) {
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'wait';
+        btn.textContent = (document.documentElement.lang === 'ar' ? 'جاري التحقق...' : 'Signing in...');
+      }
+    });
+  </script>
+</body>
+</html>

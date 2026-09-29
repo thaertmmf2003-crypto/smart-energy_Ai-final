@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="ov">
+
+<!-- 1 · HERO: the story in one line + live status -->
+<section class="hero ov-hero">
+  <div class="ov-hero-text">
+    <div class="kicker">AUTONOMOUS ENERGY INTELLIGENCE</div>
+    <h2>From anomaly to <span class="ov-grad">verified action.</span></h2>
+    <p>The agent continuously connects energy data, ML predictions, digital-twin simulations and human approval into one operational loop.</p>
+    <div class="ov-hero-actions">
+      <a class="hero-action" href="{{ url_for('pages.operations') }}">Open AI Operations <span>→</span></a>
+      <a class="ov-ghost" href="{{ url_for('pages.verification') }}#agent-roadmap">Watch the agent decide <span>→</span></a>
+    </div>
+  </div>
+  <ol class="ov-loop" aria-label="Operational loop">
+    <li><b>Sense</b><span>ML detects the event</span></li>
+    <li><b>Decide</b><span>Digital twin + optimizer</span></li>
+    <li><b>Approve</b><span>Human in the loop</span></li>
+    <li><b>Verify</b><span>Measured outcome</span></li>
+  </ol>
+
+  <!-- Live Operational Simulation Bar -->
+  <div class="ov-live" id="live-sim-bar">
+    <div class="ov-live-main">
+      <span class="status-dot ov-live-dot"></span>
+      <strong>LIVE SIMULATION</strong>
+      <span class="ov-sep"></span>
+      <span>Operational time <strong id="live-op-time">Loading...</strong></span>
+    </div>
+    <div class="ov-live-meta">Updated <span id="live-updated-ago">0</span>s ago · stream every 5 s</div>
+  </div>
+</section>
+
+<div class="notice" id="mock-data-warning" hidden>MOCK DATA</div>
+
+<!-- 2 · KPIs: impact first -->
+<section class="kpi-grid ov-kpis">
+  <article class="kpi-card ov-kpi ov-kpi-impact">
+    <div class="ov-kpi-top"><div class="kpi-label">EST. REDUCTION</div><span class="ov-ico">↘</span></div>
+    <div class="kpi-value" id="overview-reduction">—</div>
+    <div class="kpi-meta" id="overview-reduction-meta">Run an analysis first</div>
+    <div class="ov-impact" id="overview-impact">
+      <div><span>Cost avoided</span><strong id="overview-impact-money">—</strong></div>
+      <div><span>CO₂ avoided</span><strong id="overview-impact-co2">—</strong></div>
+    </div>
+    <div class="panel-footnote">Digital Twin simulation · <span id="overview-impact-basis">per event hour</span></div>
+  </article>
+
+  <article class="kpi-card ov-kpi">
+    <div class="ov-kpi-top"><div class="kpi-label">CURRENT LOAD</div><span class="ov-ico">⚡</span></div>
+    <div class="kpi-value" id="overview-load">—</div>
+    <div class="kpi-meta">kW · live simulated demand</div>
+    <div class="panel-footnote">Historical profile + simulation</div>
+  </article>
+
+  <article class="kpi-card ov-kpi">
+    <div class="ov-kpi-top"><div class="kpi-label">SOLAR GENERATION</div><span class="ov-ico">☀</span></div>
+    <div class="kpi-value gold" id="overview-solar">—</div>
+    <div class="kpi-meta">kW · renewable supply</div>
+    <div class="panel-footnote">PV model + NASA POWER</div>
+  </article>
+
+  <article class="kpi-card ov-kpi ov-kpi-alert">
+    <div class="ov-kpi-top"><div class="kpi-label">ANOMALIES DETECTED</div><span class="ov-ico">◆</span></div>
+    <div class="kpi-value burgundy-text" id="overview-anomalies">—</div>
+    <div class="kpi-meta">events in current dataset</div>
+    <button class="kpi-link" id="show-anomalies" type="button" disabled>What are they?</button>
+    <div class="panel-footnote">Existing anomaly detection</div>
+  </article>
+</section>
+<div class="as-of ov-asof" id="overview-as-of">Historical Source Baseline: —</div>
+
+<section class="panel" id="anomaly-panel" hidden>
+  <div class="panel-head">
+    <div>
+      <div class="panel-kicker">ANOMALIES DETECTED</div>
+      <h3>What the detector flagged</h3>
+    </div>
+    <button class="secondary-btn" id="close-anomalies" type="button">Hide</button>
+  </div>
+  <p class="panel-footnote">An <b>energy anomaly</b> is an hour where a building's measured load
+  differed from the forecast by 25% or more. The measure column shows that gap: −30% means the
+  building drew 30% less than expected. Severity is HIGH from 50% upward, ELEVATED below it.
+  A <b>peak-demand risk</b> is a different thing entirely: the campus total climbing toward the
+  850 kW grid limit, and its measure is the share of that limit reached.</p>
+
+  <div class="anomaly-filters" id="anomaly-filters">
+    <button class="seg active" data-kind="ENERGY_ANOMALY" type="button">Energy anomalies</button>
+    <button class="seg" data-kind="PEAK_DEMAND_RISK" type="button">Peak-demand risks</button>
+    <button class="seg" data-kind="all" type="button">Both</button>
+  </div>
+
+  <div id="anomaly-body"><div class="empty-state">Loading…</div></div>
+</section>
+
+<!-- 4 · SIGNAL + AGENT -->
+<section class="two-col ov-signal">
+  <article class="panel chart-panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">ENERGY SIGNAL</div>
+        <h3>48-hour operating profile</h3>
+      </div>
+      <div class="ov-chart-legend">
+        <span><i style="background:#F4EFE4"></i>Consumption</span>
+        <span><i style="background:#DEB85C"></i>Solar</span>
+        <span><i style="background:#A45261"></i>HVAC</span>
+        <a class="text-link" href="{{ url_for('pages.energy') }}">Full monitor →</a>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="overview-chart"></canvas></div>
+  </article>
+
+  <article class="panel agent-overview ov-agent">
+    <div class="panel-kicker">AGENT STATUS</div>
+    <div class="agent-state-large" id="overview-agent-state">—</div>
+    <div class="agent-event" id="overview-agent-event">Run an analysis to populate the current event.</div>
+    <div class="state-mini-grid">
+      <div><span>Mode</span><strong id="overview-mode">LIVE SIMULATION</strong></div>
+      <div><span>Approval</span><strong id="overview-approval">—</strong></div>
+      <div><span>ML</span><strong id="overview-ml">—</strong></div>
+      <div><span>RAG</span><strong id="overview-rag">—</strong></div>
+    </div>
+    <a class="primary-btn full" href="{{ url_for('pages.operations') }}">Inspect agent lifecycle</a>
+  </article>
+</section>
+
+<!-- 5 · CONTEXT: events, environment, services -->
+<section class="three-col ov-context">
+  <article class="panel">
+    <div class="panel-head">
+      <div><div class="panel-kicker">RECENT EVENTS</div><h3>Operational signals</h3></div>
+      <button class="text-link ov-more" id="overview-events-toggle" type="button" hidden>Show all</button>
+    </div>
+    <div id="overview-events" class="list ov-events"></div>
+  </article>
+
+  <!-- Compact NASA POWER Weather Section -->
+  <article class="panel ov-weather">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">ENVIRONMENTAL CONDITIONS</div>
+        <h3>NASA POWER weather</h3>
+      </div>
+      <span class="ov-source">Source: <strong id="weather-source">NASA POWER</strong></span>
+    </div>
+    <div class="ov-weather-grid">
+      <div><span>Temperature</span><strong id="weather-temp">— °C</strong></div>
+      <div><span>Humidity</span><strong id="weather-rh">— % RH</strong></div>
+      <div><span>Solar irradiance</span><strong class="gold" id="weather-irradiance">— W/m²</strong></div>
+      <div><span>Wind speed</span><strong id="weather-wind">— m/s</strong></div>
+    </div>
+    <dl class="ov-times">
+      <div><dt>NASA observation (UTC)</dt><dd id="weather-utc-time">—</dd></div>
+      <div><dt>Jordan local (Asia/Amman)</dt><dd class="gold" id="weather-jordan-time">—</dd></div>
+      <div><dt>Retrieved</dt><dd id="weather-retrieved-time">—</dd></div>
+    </dl>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head"><div><div class="panel-kicker">SYSTEM HEALTH</div><h3>Runtime services</h3></div></div>
+    <div class="health-list" id="overview-health"></div>
+    <div id="overview-rag-detail" class="panel-footnote"></div>
+  </article>
+</section>
+
+</div>
+{% endblock %}

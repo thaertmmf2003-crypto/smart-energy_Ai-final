@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero" style="border-left: 3px solid var(--accent); background: linear-gradient(135deg, rgba(164, 82, 97, 0.1), transparent);">
+  <div>
+    <div class="kicker" style="color: var(--accent);">HISTORICAL DATA EXPLORER · READ ONLY</div>
+    <h2>Inspect Past Operational Truth</h2>
+    <p>Select any historical date and time from the dataset repository to query exact recorded energy profiles, weather parameters, and agent activity. This interface queries past SQLite database truth and is completely separate from the live operational stream.</p>
+  </div>
+  <div style="text-align: right;">
+    <span class="sim-badge" style="background: rgba(164, 82, 97, 0.2); color: #e5989b; font-weight: 700; font-size: 11px; padding: 6px 12px;">HISTORICAL DATABASE REPOSITORY</span>
+  </div>
+</section>
+
+<!-- Date/Time Picker Control Panel with Dynamic Year/Month/Day Selectors -->
+<section class="panel" style="margin-bottom: 24px;">
+  <div class="panel-head">
+    <div>
+      <div class="panel-kicker">HISTORICAL QUERY SELECTOR</div>
+      <h3>Choose Date & Time (Dataset Range: <span id="hist-years-range">2016 – 2017</span>)</h3>
+    </div>
+  </div>
+  
+  <form id="history-form" style="display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 12px; align-items: flex-end; padding-top: 12px;">
+    <!-- YEAR SELECTOR -->
+    <div>
+      <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">YEAR</label>
+      <select id="hist-year-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+        <option value="2016">2016</option>
+        <option value="2017" selected>2017</option>
+      </select>
+    </div>
+
+    <!-- MONTH SELECTOR -->
+    <div>
+      <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">MONTH</label>
+      <select id="hist-month-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+        <option value="01">01 - Jan</option>
+        <option value="02">02 - Feb</option>
+        <option value="03">03 - Mar</option>
+        <option value="04">04 - Apr</option>
+        <option value="05">05 - May</option>
+        <option value="06">06 - Jun</option>
+        <option value="07">07 - Jul</option>
+        <option value="08">08 - Aug</option>
+        <option value="09" selected>09 - Sep</option>
+        <option value="10">10 - Oct</option>
+        <option value="11">11 - Nov</option>
+        <option value="12">12 - Dec</option>
+      </select>
+    </div>
+
+    <!-- DAY SELECTOR -->
+    <div>
+      <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">DAY</label>
+      <select id="hist-day-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+        {% for d in range(1, 32) %}
+        <option value="{{ '%02d' % d }}" {% if d == 23 %}selected{% endif %}>{{ '%02d' % d }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- HOUR SELECTOR -->
+    <div>
+      <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">HOUR</label>
+      <select id="hist-hour-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+        {% for h in range(24) %}
+        <option value="{{ '%02d' % h }}" {% if h == 20 %}selected{% endif %}>{{ '%02d' % h }}:00</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- MINUTE SELECTOR -->
+    <div>
+      <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">MINUTE</label>
+      <select id="hist-min-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+        <option value="00" selected>:00</option>
+        <option value="15">:15</option>
+        <option value="30">:30</option>
+        <option value="45">:45</option>
+      </select>
+    </div>
+
+    <!-- SUBMIT BUTTON -->
+    <div>
+      <button type="submit" id="btn-fetch-history" class="primary-btn" style="height: 38px; padding: 0 20px; font-weight: 700; white-space: nowrap;">VIEW HISTORICAL STATE</button>
+    </div>
+  </form>
+</section>
+
+<!-- Query Status & Selected Timestamp Banner -->
+<div id="hist-status-banner" class="notice" style="background: rgba(222, 184, 92, 0.1); border: 1px solid rgba(222, 184, 92, 0.3); color: #DEB85C; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;">
+  <div>
+    <strong>HISTORICAL OBSERVATION:</strong> <span id="hist-selected-ts" style="font-weight: 700; color: #F4EFE4;">2017-09-23 20:00:00</span>
+  </div>
+  <div style="font-size: 11px; color: #DEB85C;" id="hist-db-source">
+    Source: Building Data Genome 2 / SQLite Database (`energy_readings`)
+  </div>
+</div>
+
+<!-- Historical KPI Metrics Cards -->
+<section class="kpi-grid" style="margin-top: 16px;">
+  <article class="kpi-card">
+    <div class="kpi-label">HISTORICAL LOAD</div>
+    <div class="kpi-value" id="hist-load">—</div>
+    <div class="kpi-meta">kW · recorded building demand</div>
+    <div class="panel-footnote" style="margin-top: 6px; font-size: 10px;">Source: Building Data Genome 2</div>
+  </article>
+  
+  <article class="kpi-card">
+    <div class="kpi-label">SOLAR GENERATION</div>
+    <div class="kpi-value gold" id="hist-solar">—</div>
+    <div class="kpi-meta">kW · PV output at observation</div>
+    <div class="panel-footnote" style="margin-top: 6px; font-size: 10px;">Source: Solar readings archive</div>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-label">HVAC LOAD</div>
+    <div class="kpi-value burgundy-text" id="hist-hvac">—</div>
+    <div class="kpi-meta">kW · cooling/thermal power</div>
+    <div class="panel-footnote" style="margin-top: 6px; font-size: 10px;">Source: Building HVAC sensors</div>
+  </article>
+
+  <article class="kpi-card">
+    <div class="kpi-label">OCCUPANCY</div>
+    <div class="kpi-value" id="hist-occupancy">—</div>
+    <div class="kpi-meta">% · estimated building utilization</div>
+    <div class="panel-footnote" style="margin-top: 6px; font-size: 10px;">Source: Occupancy log</div>
+  </article>
+</section>
+
+<!-- Historical Chart Window with Selected Timestamp Marker -->
+<section class="panel chart-panel" style="margin-top: 24px;">
+  <div class="panel-head">
+    <div>
+      <div class="panel-kicker">HISTORICAL TIME WINDOW (24 HOURS)</div>
+      <h3>Recorded Load Profile & Selected Time Indicator</h3>
+    </div>
+    <div style="font-size: 11px; color: var(--text-muted); text-align: right;">
+      <span style="color: var(--gold); font-weight: 700;">▲ SELECTED TIME</span> MARKER
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="history-chart"></canvas>
+  </div>
+</section>
+
+<!-- Historical Events & Incidents at Timestamp -->
+<section class="two-col" style="margin-top: 24px;">
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">RECORDED INCIDENTS & ANOMALIES</div>
+        <h3>Database Events at Selected Date</h3>
+      </div>
+    </div>
+    <div id="hist-events-list" class="list">
+      <div class="empty-state">Select a timestamp to inspect recorded incidents.</div>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">ENVIRONMENTAL CONDITIONS</div>
+        <h3>Historical Weather Record</h3>
+      </div>
+    </div>
+    <div class="health-list" id="hist-weather-details">
+      <div class="health-row"><span>Temperature</span><b id="hist-temp">—</b></div>
+      <div class="health-row"><span>Relative Humidity</span><b id="hist-rh">—</b></div>
+      <div class="health-row"><span>Solar Irradiance</span><b id="hist-irradiance">—</b></div>
+      <div class="health-row"><span>Data Source</span><b>Open-Meteo Historical Archive</b></div>
+    </div>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify Code · Smart Energy AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/i18n_theme.js') }}"></script>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div style="position: absolute; top: 24px; right: 28px; display: flex; gap: 12px; z-index: 10;">
+      <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme(event)" title="Toggle Theme">☀️</button>
+      <button class="lang-toggle-btn" id="lang-toggle" onclick="toggleLanguage(event)" title="Toggle Language">العربية</button>
+    </div>
+
+    <div class="auth-card" style="max-width: 480px; text-align: center;">
+      <div class="auth-header">
+        <div class="auth-brand-mark">🔐</div>
+        <h2 data-i18n="auth_otp_title">Security Verification</h2>
+        <p data-i18n="auth_otp_sub">We have sent a 6-digit verification code to your email</p>
+        <div style="margin-top: 8px; font-weight: 700; color: var(--gold-soft); font-size: 14px;">
+          {{ email }}
+        </div>
+        {% if code_type == 'password_reset' %}
+        <div style="margin-top: 6px; display: inline-block; padding: 2px 10px; border-radius: 999px; background: rgba(222, 184, 92, 0.12); color: var(--gold-soft); font-size: 11px; font-weight: 700;">
+          Password Reset · استعادة كلمة المرور
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
+            {% for category, message in messages %}
+              <div class="flash-alert alert-{{ category }}" style="padding: 10px 14px; font-size: 12px;">
+                <span>{{ message }}</span>
+                <button type="button" class="alert-close" onclick="this.parentElement.remove()">×</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('auth.verify_code') }}" class="auth-form" id="otp-form">
+        <input type="hidden" name="code" id="full-otp-code">
+
+        <div class="otp-grid">
+          <input type="text" maxlength="1" class="otp-digit" id="d1" inputmode="numeric" pattern="[0-9]*" autofocus autocomplete="one-time-code">
+          <input type="text" maxlength="1" class="otp-digit" id="d2" inputmode="numeric" pattern="[0-9]*">
+          <input type="text" maxlength="1" class="otp-digit" id="d3" inputmode="numeric" pattern="[0-9]*">
+          <input type="text" maxlength="1" class="otp-digit" id="d4" inputmode="numeric" pattern="[0-9]*">
+          <input type="text" maxlength="1" class="otp-digit" id="d5" inputmode="numeric" pattern="[0-9]*">
+          <input type="text" maxlength="1" class="otp-digit" id="d6" inputmode="numeric" pattern="[0-9]*">
+        </div>
+
+        <div style="font-size: 12px; color: var(--muted-2); margin-bottom: 12px;">
+          <span data-i18n="auth_otp_expires_in">Code expires in:</span>
+          <strong id="timer" style="color: var(--cream); font-family: monospace; font-size: 14px; margin-left: 4px;">10:00</strong>
+        </div>
+
+        <button type="submit" class="hero-action full" style="margin-top: 4px;" data-i18n="auth_otp_verify_btn">Verify & Proceed</button>
+      </form>
+
+      <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+        <form method="POST" action="{{ url_for('auth.resend_code') }}" style="display: inline;">
+          <button type="submit" class="action-btn-sm" style="background: none; border: none; color: var(--gold); font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0;" data-i18n="auth_otp_resend">
+            Resend Code
+          </button>
+        </form>
+
+        <a href="{{ url_for('auth.login') }}" style="color: var(--muted); text-decoration: none;" data-i18n="auth_otp_back">
+          Back to Sign In
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 6-digit OTP input handler with paste support
+    const digits = [
+      document.getElementById('d1'),
+      document.getElementById('d2'),
+      document.getElementById('d3'),
+      document.getElementById('d4'),
+      document.getElementById('d5'),
+      document.getElementById('d6')
+    ];
+
+    digits.forEach((digit, index) => {
+      digit.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/[^0-9]/g, '');
+        digit.value = val ? val[val.length - 1] : '';
+        if (digit.value && index < 5) {
+          digits[index + 1].focus();
+        }
+        updateFullCode();
+      });
+
+      digit.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !digit.value && index > 0) {
+          digits[index - 1].focus();
+        }
+      });
+
+      digit.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+        if (pasted.length >= 6) {
+          for (let i = 0; i < 6; i++) {
+            digits[i].value = pasted[i];
+          }
+          digits[5].focus();
+          updateFullCode();
+        }
+      });
+    });
+
+    function updateFullCode() {
+      const code = digits.map(d => d.value).join('');
+      document.getElementById('full-otp-code').value = code;
+      if (code.length === 6) {
+        // Auto submit if all 6 filled
+        // document.getElementById('otp-form').submit();
+      }
+    }
+
+    document.getElementById('otp-form').addEventListener('submit', (e) => {
+      updateFullCode();
+      const code = document.getElementById('full-otp-code').value;
+      if (code.length !== 6) {
+        e.preventDefault();
+        alert(document.documentElement.lang === 'ar' ? 'يرجى إدخال الرمز المكون من 6 أرقام كاملاً' : 'Please enter all 6 digits of the verification code');
+      }
+    });
+
+    // 10:00 Countdown Timer
+    let timeLeft = 600;
+    const timerEl = document.getElementById('timer');
+    const interval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        timerEl.textContent = '00:00 (Expired)';
+        timerEl.style.color = 'var(--danger)';
+      } else {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

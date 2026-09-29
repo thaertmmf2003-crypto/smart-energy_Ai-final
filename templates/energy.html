@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-intro">
+  <div>
+    <div class="kicker">ENERGY MONITOR</div>
+    <h2>See the operating signal before acting.</h2>
+    <p>Consumption, solar and HVAC behavior across the selected building.</p>
+  </div>
+</section>
+
+<!-- LIVE SIMULATION STATUS BAR -->
+<div class="live-status-bar" style="display:flex;align-items:center;gap:16px;padding:10px 20px;background:#1e1624;border-bottom:1px solid #2e2535;font-size:12px;color:#a89fc0;">
+  <span style="color:#7fff7f;font-weight:700;letter-spacing:.08em;">● LIVE SIMULATION</span>
+  <span>Operational Time: <strong id="live-op-time-energy" style="color:#F4EFE4;">—</strong></span>
+  <span style="margin-left:auto;">Updated <span id="live-updated-ago-energy" style="color:#F4EFE4;">0</span>s ago</span>
+</div>
+
+<section class="kpi-grid compact">
+  <article class="kpi-card">
+    <div class="kpi-label">LOAD</div>
+    <div class="kpi-value" id="energy-load">—</div>
+    <div class="kpi-meta" style="color:#7a7090;font-size:10px;">Historical profile · simulation</div>
+  </article>
+  <article class="kpi-card">
+    <div class="kpi-label">SOLAR</div>
+    <div class="kpi-value gold" id="energy-solar">—</div>
+    <div class="kpi-meta" style="color:#7a7090;font-size:10px;">PV model · NASA POWER</div>
+  </article>
+  <article class="kpi-card">
+    <div class="kpi-label">HVAC</div>
+    <div class="kpi-value" id="energy-hvac">—</div>
+    <div class="kpi-meta" style="color:#7a7090;font-size:10px;">Derived from load profile</div>
+  </article>
+  <article class="kpi-card">
+    <div class="kpi-label">OCCUPANCY</div>
+    <div class="kpi-value" id="energy-occupancy">—</div>
+    <div class="kpi-meta" style="color:#7a7090;font-size:10px;">Operational estimate</div>
+  </article>
+  <article class="kpi-card">
+    <div class="kpi-label">GRID IMPORT</div>
+    <div class="kpi-value" id="energy-grid-import">—</div>
+    <div class="kpi-meta" style="color:#7a7090;font-size:10px;">Load minus solar</div>
+  </article>
+</section>
+
+<section class="panel chart-panel large">
+  <div class="panel-head" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+    <div><div class="panel-kicker">LIVE DATA WINDOW</div><h3>Energy behavior · last 48 hours</h3></div>
+    <div class="segmented" style="margin: 0 12px;">
+      <button class="seg active" data-series="consumption">Consumption</button>
+      <button class="seg active" data-series="solar">Solar</button>
+      <button class="seg active" data-series="hvac">HVAC</button>
+    </div>
+    <div class="legend">
+      <span><i class="legend-dot gold-dot"></i>Solar</span>
+      <span><i class="legend-dot burgundy-dot"></i>HVAC</span>
+      <span><i class="legend-dot cream-dot"></i>Consumption</span>
+    </div>
+  </div>
+  <div class="chart-wrap tall"><canvas id="energy-chart"></canvas></div><div id="energy-caption" class="chart-caption">last 48 hours to —</div>
+</section>
+
+<section class="two-col">
+  <article class="panel">
+    <div class="panel-head"><div><div class="panel-kicker">EVENT FEED</div><h3>ML-detected signals</h3></div></div>
+    <div id="energy-events" class="event-list"></div>
+  </article>
+  <article class="panel">
+    <div class="panel-head"><div><div class="panel-kicker">READING GUIDE</div><h3>What the agent watches</h3></div></div>
+    <div class="guide-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+      <div style="display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; padding: 10px 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid var(--border);">
+        <b style="color: var(--gold); font-size: 13px;">Consumption</b>
+        <span style="color: var(--text-muted); font-size: 12px; text-align: right;">Building electrical demand over time.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; padding: 10px 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid var(--border);">
+        <b style="color: var(--gold); font-size: 13px;">Solar</b>
+        <span style="color: var(--text-muted); font-size: 12px; text-align: right;">Estimated photovoltaic generation.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; padding: 10px 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid var(--border);">
+        <b style="color: var(--gold); font-size: 13px;">HVAC</b>
+        <span style="color: var(--text-muted); font-size: 12px; text-align: right;">Heating and cooling load contribution.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; padding: 10px 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid var(--border);">
+        <b style="color: var(--gold); font-size: 13px;">Occupancy</b>
+        <span style="color: var(--text-muted); font-size: 12px; text-align: right;">Operational context for demand anomalies.</span>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ============================================================ -->
+<!-- HISTORICAL DATA EXPLORER (READ ONLY)                         -->
+<!-- ============================================================ -->
+<div id="historical-data-section" style="margin-top: 40px; padding-top: 24px; border-top: 2px dashed rgba(164, 82, 97, 0.4);">
+  <section class="hero" style="border-left: 3px solid var(--accent); background: linear-gradient(135deg, rgba(164, 82, 97, 0.1), transparent);">
+    <div>
+      <div class="kicker" style="color: var(--accent);">HISTORICAL DATA EXPLORER · READ ONLY</div>
+      <h2>Inspect Past Operational Truth</h2>
+      <p>Select any historical date and time from the dataset repository to query exact recorded energy profiles, weather parameters, and agent activity. This section queries past SQLite database records and is clearly separated from live operational data.</p>
+    </div>
+    <div style="text-align: right;">
+      <span class="sim-badge" style="background: rgba(164, 82, 97, 0.2); color: #e5989b; font-weight: 700; font-size: 11px; padding: 6px 12px;">HISTORICAL DATABASE REPOSITORY</span>
+    </div>
+  </section>
+
+  <!-- Date/Time Picker Control Panel -->
+  <section class="panel" style="margin-bottom: 24px;">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">HISTORICAL QUERY SELECTOR</div>
+        <h3>Choose Date & Time (Dataset Range: <span id="hist-years-range">2016 – 2017</span>)</h3>
+      </div>
+    </div>
+    
+    <form id="history-form" style="display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 12px; align-items: flex-end; padding-top: 12px;">
+      <!-- YEAR SELECTOR -->
+      <div>
+        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">YEAR</label>
+        <select id="hist-year-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+          <option value="2016">2016</option>
+          <option value="2017" selected>2017</option>
+        </select>
+      </div>
+
+      <!-- MONTH SELECTOR -->
+      <div>
+        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">MONTH</label>
+        <select id="hist-month-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+          <option value="01">01 - Jan</option>
+          <option value="02">02 - Feb</option>
+          <option value="03">03 - Mar</option>
+          <option value="04">04 - Apr</option>
+          <option value="05">05 - May</option>
+          <option value="06">06 - Jun</option>
+          <option value="07">07 - Jul</option>
+          <option value="08">08 - Aug</option>
+          <option value="09" selected>09 - Sep</option>
+          <option value="10">10 - Oct</option>
+          <option value="11">11 - Nov</option>
+          <option value="12">12 - Dec</option>
+        </select>
+      </div>
+
+      <!-- DAY SELECTOR -->
+      <div>
+        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">DAY</label>
+        <select id="hist-day-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+          {% for d in range(1, 32) %}
+          <option value="{{ '%02d' % d }}" {% if d == 23 %}selected{% endif %}>{{ '%02d' % d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- HOUR SELECTOR -->
+      <div>
+        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">HOUR</label>
+        <select id="hist-hour-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+          {% for h in range(24) %}
+          <option value="{{ '%02d' % h }}" {% if h == 20 %}selected{% endif %}>{{ '%02d' % h }}:00</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- MINUTE SELECTOR -->
+      <div>
+        <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;">MINUTE</label>
+        <select id="hist-min-select" style="width: 100%; padding: 8px 10px; background: #171319; border: 1px solid var(--border); color: #F4EFE4; border-radius: 6px; font-size: 13px;">
+          <option value="00" selected>:00</option>
+          <option value="15">:15</option>
+          <option value="30">:30</option>
+          <option value="45">:45</option>
+        </select>
+      </div>
+
+      <!-- SUBMIT & TEST BUTTONS -->
+      <div style="display: flex; gap: 8px; align-items: flex-end;">
+        <button type="submit" id="btn-fetch-history" class="primary-btn" style="height: 38px; padding: 0 16px; font-weight: 700; white-space: nowrap;">VIEW HISTORICAL STATE</button>
+        <button type="button" id="btn-test-sample-event" class="secondary-btn" style="height: 38px; padding: 0 12px; font-size: 11px; white-space: nowrap;" title="Load known date with recorded peak demand incident (2017-08-11 16:00)">✦ TEST EVENT DATE</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Query Status & Selected Timestamp Banner -->
+  <div id="hist-status-banner" class="notice" style="background: rgba(222, 184, 92, 0.1); border: 1px solid rgba(222, 184, 92, 0.3); color: #DEB85C; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;">
+    <div>
+      <strong>HISTORICAL OBSERVATION:</strong> <span id="hist-selected-ts" style="font-weight: 700; color: #F4EFE4;">2017-09-23 20:00:00</span>
+    </div>
+    <div style="font-size: 11px; color: #DEB85C;" id="hist-db-source">
+      Source: Building Data Genome 2 / SQLite Database (`energy_readings`)
+    </div>
+  </div>
+
+  <!-- Historical KPI Metrics Cards -->
+  <section class="kpi-grid" style="margin-top: 16px;">
+    <article class="kpi-card">
+      <div class="kpi-label">HISTORICAL LOAD</div>
+      <div class="kpi-value" id="hist-load">—</div>
+      <div class="kpi-meta">kW · recorded building demand</div>
+      <div class="panel-footnote" style="margin-top: 6px; font-size: 10px;">Source: Building Data Genome 2</div>
+    </article>
+    
+    <article class="kpi-card">
+      <div class="kpi-label">SOLAR GENERATION</div>
+      <div class="kpi-value gold" id="hist-solar">—</div>
+      <div class="kpi-meta">kW · PV output at observation</div>
+      <div class="panel-footnote" style="margin-top: 6px; font-size: 10px;">Source: Solar readings archive</div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-label">HVAC LOAD</div>
+      <div class="kpi-value burgundy-text" id="hist-hvac">—</div>
+      <div class="kpi-meta">kW · cooling/thermal power</div>
+      <div class="panel-footnote" style="margin-top: 6px; font-size: 10px;">Source: Building HVAC sensors</div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-label">OCCUPANCY</div>
+      <div class="kpi-value" id="hist-occupancy">—</div>
+      <div class="kpi-meta">% · estimated building utilization</div>
+      <div class="panel-footnote" style="margin-top: 6px; font-size: 10px;">Source: Occupancy log</div>
+    </article>
+  </section>
+
+  <!-- Historical Chart Window with Selected Timestamp Marker -->
+  <section class="panel chart-panel" style="margin-top: 24px;">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">HISTORICAL TIME WINDOW (24 HOURS)</div>
+        <h3>Recorded Load Profile & Selected Time Indicator</h3>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted); text-align: right;">
+        <span style="color: var(--gold); font-weight: 700;">▲ SELECTED TIME</span> MARKER
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="history-chart"></canvas>
+    </div>
+  </section>
+
+  <!-- Historical Events & Incidents at Timestamp -->
+  <section class="two-col" style="margin-top: 24px;">
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-kicker">RECORDED INCIDENTS & ANOMALIES</div>
+          <h3>Database Events at Selected Date</h3>
+        </div>
+      </div>
+      <div id="hist-events-list" class="list">
+        <div class="empty-state">Select a timestamp to inspect recorded incidents.</div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-kicker">ENVIRONMENTAL CONDITIONS</div>
+          <h3>Historical Weather Record</h3>
+        </div>
+      </div>
+      <div class="health-list" id="hist-weather-details">
+        <div class="health-row"><span>Temperature</span><b id="hist-temp">—</b></div>
+        <div class="health-row"><span>Relative Humidity</span><b id="hist-rh">—</b></div>
+        <div class="health-row"><span>Solar Irradiance</span><b id="hist-irradiance">—</b></div>
+        <div class="health-row"><span>Data Source</span><b>Open-Meteo Historical Archive</b></div>
+      </div>
+    </article>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} · Smart Energy AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <!-- Zero-Flash Theme & i18n Loader -->
+  <script src="{{ url_for('static', filename='js/i18n_theme.js') }}"></script>
+  {% block head %}{% endblock %}
+</head>
+<body data-page="{{ page }}">
+  <div class="app-shell">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><span>SE</span></div>
+        <div>
+          <div class="brand-name" data-i18n="brand_title">SMART ENERGY</div>
+          <div class="brand-sub" data-i18n="brand_sub">AUTONOMOUS OPERATIONS</div>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="section-label" data-i18n="nav_sec_ops">OPERATIONS CENTER</div>
+      <nav class="nav">
+        <a href="{{ url_for('pages.overview') }}" class="nav-item {% if page == 'overview' %}active{% endif %}">
+          <span class="nav-icon">⌂</span><span data-i18n="nav_overview">Overview</span>
+        </a>
+        <a href="{{ url_for('pages.energy') }}" class="nav-item {% if page == 'energy' %}active{% endif %}">
+          <span class="nav-icon">◫</span><span data-i18n="nav_energy">Energy Monitor</span>
+        </a>
+        <a href="{{ url_for('pages.operations') }}" class="nav-item {% if page == 'operations' %}active{% endif %}">
+          <span class="nav-icon">✦</span><span data-i18n="nav_operations">AI Operations</span>
+          <span class="nav-live" data-i18n="nav_live">LIVE</span>
+        </a>
+        <a href="{{ url_for('pages.digital_twin') }}" class="nav-item {% if page == 'digital_twin' %}active{% endif %}">
+          <span class="nav-icon">◇</span><span data-i18n="nav_digital_twin">Digital Twin</span>
+        </a>
+        <a href="{{ url_for('pages.verification') }}" class="nav-item {% if page == 'verification' %}active{% endif %}">
+          <span class="nav-icon">✓</span><span data-i18n="nav_verification">Verification</span>
+        </a>
+      </nav>
+
+      <div class="section-label section-spaced" data-i18n="nav_sec_intel">INTELLIGENCE</div>
+      <nav class="nav">
+        <a href="{{ url_for('pages.knowledge') }}" class="nav-item {% if page == 'knowledge' %}active{% endif %}">
+          <span class="nav-icon">⌘</span><span data-i18n="nav_knowledge">AI Knowledge</span>
+        </a>
+        <a href="{{ url_for('pages.activity') }}" class="nav-item {% if page == 'activity' %}active{% endif %}">
+          <span class="nav-icon">≡</span><span data-i18n="nav_activity">Activity Log</span>
+        </a>
+      </nav>
+
+      {% if current_user %}
+      <div class="section-label section-spaced" data-i18n="nav_sec_account">ACCOUNT & ACCESS</div>
+      <nav class="nav">
+        {% if current_user.role == 'admin' or current_user.can_manage_users %}
+        <a href="{{ url_for('pages.admin') }}" class="nav-item {% if page == 'admin' %}active{% endif %}">
+          <span class="nav-icon">⚙</span><span data-i18n="nav_admin">Admin Panel</span>
+        </a>
+        {% endif %}
+        <a href="{{ url_for('pages.user_profile') }}" class="nav-item {% if page == 'user' %}active{% endif %}">
+          <span class="nav-icon">👤</span><span data-i18n="nav_profile">My Profile</span>
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="nav-item">
+          <span class="nav-icon">🚪</span><span data-i18n="nav_logout">Sign Out</span>
+        </a>
+      </nav>
+      {% endif %}
+
+      <div class="sidebar-bottom">
+        <div class="agent-card">
+          <div class="agent-card-top">
+            <span class="status-dot" id="sidebar-status-dot"></span>
+            <span id="sidebar-status">—</span>
+          </div>
+          <div class="agent-title" data-i18n="agent_title">Autonomous Energy Agent</div>
+          <div class="agent-mode" data-i18n="agent_mode">SIMULATION MODE · HUMAN APPROVAL</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu" id="mobile-menu" aria-label="Open menu">☰</button>
+          <div>
+            <div class="eyebrow" data-i18n="eyebrow_center">ENERGY OPERATIONS CENTER</div>
+            <h1>{{ title }}</h1>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Theme Toggle Button -->
+          <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme(event)" title="Toggle Theme" aria-label="Toggle Theme">☀️</button>
+          
+          <!-- Colour theme picker -->
+          <div class="palette-picker">
+            <button class="palette-btn" id="palette-toggle" type="button" title="Color theme" aria-label="Color theme" aria-haspopup="true" aria-expanded="false"><i></i></button>
+            <div class="palette-menu" id="palette-menu" hidden></div>
+          </div>
+
+          <!-- Language Toggle Button -->
+          <button class="lang-toggle-btn" id="lang-toggle" onclick="toggleLanguage(event)" title="Toggle Language" aria-label="Toggle Language">العربية</button>
+
+          <label class="building-picker">
+            <span data-i18n="building_label">BUILDING</span>
+            <select id="building-select">
+              <option value="CAMPUS" data-i18n="campus_option">Campus</option>
+              <option value="B001" data-i18n="b001_option">B001 · Administration</option>
+              <option value="B002" data-i18n="b002_option">B002 · Labs</option>
+              <option value="B003" data-i18n="b003_option">B003 · Classrooms</option>
+            </select>
+          </label>
+
+          <div class="system-pill">
+            <span class="status-dot" id="top-status-dot"></span>
+            <span id="top-status" data-i18n="system_ready">System ready</span>
+          </div>
+
+          {% if current_user %}
+          <a href="{{ url_for('pages.user_profile') }}" class="user-topbar-pill" title="User Profile">
+            <div class="user-topbar-avatar">{{ current_user.username[0]|upper }}</div>
+            <div class="user-topbar-info">
+              <span class="user-topbar-name">{{ current_user.username }}</span>
+              <span class="user-topbar-role badge-role badge-{{ current_user.role }}">{{ current_user.role }}</span>
+            </div>
+          </a>
+          {% else %}
+          <a href="{{ url_for('auth.login') }}" class="primary-btn" style="padding: 7px 14px; font-size: 11px;" data-i18n="nav_login">Sign In</a>
+          {% endif %}
+        </div>
+      </header>
+
+      {% if session.get('original_admin_id') %}
+      <div style="background: rgba(222, 184, 92, 0.15); border: 1px solid var(--line-gold); color: var(--gold-soft); padding: 10px 20px; margin: 16px 24px 0; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 13px; font-weight: 500;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 16px;">👤</span>
+          <span><span data-i18n="banner_impersonating">IMPERSONATION MODE: Operating as</span> <b style="color: var(--cream);">{{ current_user.username }}</b></span>
+        </div>
+        <a href="{{ url_for('auth.exit_impersonate') }}" class="primary-btn" style="padding: 6px 14px; font-size: 12px;" data-i18n="btn_return_admin">
+          Return to Admin Account
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Global Flash Alerts Container -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-messages-container">
+            {% for category, message in messages %}
+              <div class="flash-alert alert-{{ category }}">
+                <span>{{ message }}</span>
+                <button type="button" class="alert-close" onclick="this.parentElement.remove()" aria-label="Close">×</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <div class="page-content">
+        {% block content %}{% endblock %}
+      </div>
+
+      <footer class="footer">
+        <span>SMART ENERGY AI</span>
+        <span data-i18n="footer_sub">Autonomous operations · Digital Twin · Human approval</span>
+        <span class="sim-badge" data-i18n="sim_badge">SIMULATED EXECUTION</span>
+      </footer>
+    </main>
+  </div>
+
+  <div id="replan-overlay" class="modal-overlay" hidden>
+    <div class="modal-card" role="alertdialog" aria-modal="true"
+         aria-labelledby="replan-title" aria-describedby="replan-body">
+      <div class="modal-kicker"><span data-i18n="replan_kicker">REPLANNING · ROUND</span> <span id="replan-round">1</span></div>
+      <h3 class="modal-title" id="replan-title" data-i18n="replan_title">The previous action missed its target</h3>
+
+      <div class="modal-stats" id="replan-stats"></div>
+
+      <p class="modal-body" id="replan-body"></p>
+
+      <div id="replan-diagnosis" hidden></div>
+
+      <div class="modal-proposal">
+        <span class="modal-label" data-i18n="replan_label">The agent now proposes</span>
+        <b id="replan-proposal">—</b>
+      </div>
+
+      <div class="modal-actions">
+        <button class="primary-btn" id="replan-approve" type="button" data-i18n="replan_approve">Approve</button>
+        <button class="secondary-btn" id="replan-reject" type="button" data-i18n="replan_reject">Reject</button>
+        <button class="text-link" id="replan-why" type="button" data-i18n="replan_why">Why did it fall short?</button>
+        <button class="text-link" id="replan-later" type="button" data-i18n="replan_later">Decide later</button>
+      </div>
+      <p class="modal-footnote" data-i18n="replan_footnote">Execution is simulated. Nothing runs until you approve.</p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
