@@ -79,8 +79,13 @@ REQUIRE_2FA = os.getenv("REQUIRE_2FA", "true").lower() in ("true", "1", "yes")
 
 # Email code at SIGN-IN. Off by default: a correct username/password logs in
 # directly. Set REQUIRE_LOGIN_2FA=true to send a 6-digit code again.
-# (Registration and password reset still use REQUIRE_2FA above.)
+# (Registration has its own flag below; password reset always uses a code.)
 REQUIRE_LOGIN_2FA = os.getenv("REQUIRE_LOGIN_2FA", "false").lower() in ("true", "1", "yes")
+
+# Email code when CREATING an account. Off by default: a new account is
+# verified and signed in straight away. Set REQUIRE_REGISTER_2FA=true to
+# send a 6-digit code again. (Password reset always uses a code.)
+REQUIRE_REGISTER_2FA = os.getenv("REQUIRE_REGISTER_2FA", "false").lower() in ("true", "1", "yes")
 
 # =========================================================
 # BILINGUAL FLASH MESSAGES (100% PURE EN / AR)
@@ -689,11 +694,14 @@ def register():
             return render_template("register.html", username=username, email=email)
 
         password_hash = generate_password_hash(password)
+        # There are no built-in accounts, so the very first person to register
+        # becomes the admin. Everyone after that starts as a normal user.
+        first_account = len(database.get_all_users()) == 0
         create_res = database.create_user(
             username=username,
             email=email,
             password_hash=password_hash,
-            role="user",
+            role="admin" if first_account else "user",
             is_verified=0,
             is_active=1,
         )
@@ -704,8 +712,8 @@ def register():
 
         user_id = create_res["user_id"]
 
-        # Direct Login when 2FA is not enforced
-        if not REQUIRE_2FA:
+        # Direct login when the registration code is not enforced
+        if not REQUIRE_REGISTER_2FA:
             database.update_user_verified(user_id)
             database.update_user_last_login(user_id)
             session.permanent = True

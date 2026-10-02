@@ -411,67 +411,10 @@ def init_auth_tables(db_path=None) -> None:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_vc_email ON verification_codes(email);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_vc_user_id ON verification_codes(user_id);")
 
-        # 3. حساب الأدمن الافتراضي
-        cursor.execute("SELECT id FROM users WHERE username = 'admin' OR email = 'admin@smartenergy.ai';")
-        admin_row = cursor.fetchone()
-        if not admin_row:
-            from werkzeug.security import generate_password_hash
-            import datetime as _dt
-            now_str = _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            admin_pwd_hash = generate_password_hash("admin123")
-            cursor.execute("""
-                INSERT INTO users (
-                    username, email, password_hash, role, is_verified,
-                    created_at, can_manage_users, can_control_hvac,
-                    can_approve_actions, can_view_analytics, is_active
-                ) VALUES (?, ?, ?, ?, 1, ?, 1, 1, 1, 1, 1);
-            """, ("admin", "admin@smartenergy.ai", admin_pwd_hash, "admin", now_str))
-
-        # 4. حساب الفحص والتجربة المباشر (Direct Test/Demo Account — No 2FA / Instant Login)
-        cursor.execute("SELECT id FROM users WHERE username = 'tester';")
-        tester_row = cursor.fetchone()
-        if not tester_row:
-            from werkzeug.security import generate_password_hash
-            import datetime as _dt
-            now_str = _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            tester_pwd_hash = generate_password_hash("tester123")
-            cursor.execute("""
-                INSERT INTO users (
-                    username, email, password_hash, role, is_verified,
-                    created_at, can_manage_users, can_control_hvac,
-                    can_approve_actions, can_view_analytics, is_active
-                ) VALUES (?, ?, ?, ?, 1, ?, 1, 1, 1, 1, 1);
-            """, ("tester", "tester@smart-energy.ai", tester_pwd_hash, "admin", now_str))
-
-        # 5. حساب المالك الرئيسي / المسؤول الأول (Osama Alassaf)
-        cursor.execute("""
-            SELECT id FROM users 
-            WHERE lower(email) IN ('osamaalassaf10@gmail.com', 'osama.alassaf10@gmail.com')
-               OR lower(username) = 'osama alassaf';
-        """)
-        osama_row = cursor.fetchone()
-        if not osama_row:
-            from werkzeug.security import generate_password_hash
-            import datetime as _dt
-            now_str = _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            osama_pwd_hash = generate_password_hash("123456")
-            cursor.execute("""
-                INSERT INTO users (
-                    username, email, password_hash, role, is_verified,
-                    created_at, can_manage_users, can_control_hvac,
-                    can_approve_actions, can_view_analytics, is_active
-                ) VALUES (?, ?, ?, ?, 1, ?, 1, 1, 1, 1, 1);
-            """, ("OSAMA ALASSAF", "osama.alassaf10@gmail.com", osama_pwd_hash, "admin", now_str))
-        else:
-            # التأكد من تفعيل الحساب والصلاحيات كاملة
-            cursor.execute("""
-                UPDATE users
-                SET role = 'admin', is_verified = 1, is_active = 1,
-                    can_manage_users = 1, can_control_hvac = 1,
-                    can_approve_actions = 1, can_view_analytics = 1
-                WHERE id = ?;
-            """, (osama_row["id"],))
-
+        # No built-in accounts. The default admin / tester / owner accounts
+        # (with fixed passwords) used to be re-created here on every start;
+        # they are gone. The first account registered becomes the admin
+        # (see auth.register).
 
 def create_user(
     username: str,
