@@ -77,6 +77,11 @@ BREVO_SENDER_NAME = (
 # Set to 'true' to enforce 2FA OTP codes; default is 'true' for full security
 REQUIRE_2FA = os.getenv("REQUIRE_2FA", "true").lower() in ("true", "1", "yes")
 
+# Email code at SIGN-IN. Off by default: a correct username/password logs in
+# directly. Set REQUIRE_LOGIN_2FA=true to send a 6-digit code again.
+# (Registration and password reset still use REQUIRE_2FA above.)
+REQUIRE_LOGIN_2FA = os.getenv("REQUIRE_LOGIN_2FA", "false").lower() in ("true", "1", "yes")
+
 # =========================================================
 # BILINGUAL FLASH MESSAGES (100% PURE EN / AR)
 # =========================================================
@@ -559,7 +564,7 @@ def login():
 
         # Direct Login for dedicated test/demo account OR when 2FA is explicitly disabled
         is_test_account = user.get("username", "").lower() in ("tester", "test", "demo")
-        if not REQUIRE_2FA or is_test_account:
+        if not REQUIRE_LOGIN_2FA or is_test_account:
             database.update_user_last_login(user["id"])
             session.permanent = True
             session["user_id"] = user["id"]
