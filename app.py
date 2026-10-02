@@ -796,6 +796,10 @@ class AgentService:
         self.agent = DashboardAgent()
         self._reset_run_state()
         self.processed_timestamps: set = set()
+        # (timestamp, building_id) pairs whose problem the agent closed with a
+        # verified SUCCESS. The 3D campus map paints these green. Survives new
+        # runs; cleared only by reset().
+        self.resolved: set = set()
 
         self._catalog_lock = threading.Lock()
         self._actionable: Optional[set] = None
@@ -882,6 +886,7 @@ class AgentService:
         with self.lock:
             self.agent = DashboardAgent()
             self._reset_run_state()
+            self.resolved = set()
 
     def select_event(self, body: Dict[str, Any]) -> Dict[str, Any]:
         events = _tool_data(tools.get_ml_prediction_events(), "ML prediction events")
@@ -1001,6 +1006,13 @@ class AgentService:
                 self._log_verification(
                     dict(self.agent.verification_result or {}), intended_action
                 )
+                ev = self.agent.current_event or {}
+                if (
+                    self.agent.state == AgentState.COMPLETED
+                    and (self.last_verification or {}).get("verification_status") == "SUCCESS"
+                    and ev.get("timestamp")
+                ):
+                    self.resolved.add((ev["timestamp"], ev.get("building_id") or "CAMPUS"))
             return self.snapshot()
 
     def _failure_message(self, result: Dict[str, Any]) -> str:
@@ -1419,6 +1431,134 @@ def api_history_query():
     })
 
 
+
+
+# =========================================================
+# 3D CAMPUS MAP (Digital Twin)
+# =========================================================
+
+_TWIN_SEVERITY_ORDER = ["CRITICAL", "HIGH", "ELEVATED", "LOW", "NORMAL"]
+
+
+def _twin_worst(events: List[Dict[str, Any]]) -> Optional[str]:
+    if not events:
+        return None
+    return max(
+        (e.get("severity") or "LOW" for e in events),
+        key=lambda sev: SEVERITY_RANK.get(sev, 0),
+    )
+
+
+@app.get("/api/twin/map")
+@api
+def api_twin_map():
+    """
+    State of every building for one analysed hour, for the 3D campus map.
+
+    status per building:
+      problem  - at least one ML event (anomaly / peak risk) at this hour
+      resolved - the agent executed and verified a fix for it (SUCCESS)
+      normal   - nothing flagged at this hour
+    The campus itself is an entry too: PEAK_DEMAND_RISK events are campus-wide.
+    """
+    events = _tool_data(tools.get_ml_prediction_events(), "ML prediction events")
+    actionable = service.actionable
+    by_ts: Dict[str, List[Dict[str, Any]]] = {}
+    for e in events:
+        ts = e.get("timestamp")
+        if ts in actionable:
+            by_ts.setdefault(ts, []).append(e)
+
+    hours = sorted(by_ts, reverse=True)
+    snap = service.snapshot()
+    agent_event = snap.get("event") or {}
+
+    focus = (request.args.get("timestamp") or "").strip()
+    if focus not in by_ts:
+        focus = agent_event.get("timestamp") if agent_event.get("timestamp") in by_ts else (hours[0] if hours else None)
+
+    hour_events = [
+        {
+            **e,
+            "event_label": EVENT_LABELS.get(e.get("event_type"), e.get("event_type")),
+            "building_name": building_name(e.get("building_id")),
+        }
+        for e in by_ts.get(focus, [])
+    ]
+    resolved = service.resolved
+
+    def entry_status(bid: str, evs: List[Dict[str, Any]]) -> str:
+        if not evs:
+            return "normal"
+        return "resolved" if (focus, bid) in resolved else "problem"
+
+    buildings = []
+    for bid in BUILDING_IDS:
+        meta = CONFIG_BUILDINGS.get(bid, {})
+        evs = [e for e in hour_events if e.get("building_id") == bid]
+        try:
+            live = live_simulator.get_live_operational_state(bid)
+        except Exception:  # the map must render even if the stream is down
+            live = {}
+        buildings.append(
+            {
+                "building_id": bid,
+                "name": meta.get("building_name", bid),
+                "type": meta.get("building_type"),
+                "floor_area_m2": meta.get("floor_area_m2"),
+                "maximum_power_kw": meta.get("maximum_power_kw"),
+                "has_solar": meta.get("has_solar"),
+                "has_ev_charging": meta.get("has_ev_charging"),
+                "has_battery": meta.get("has_battery"),
+                "live_load_kw": live.get("current_load_kw"),
+                "live_solar_kw": live.get("solar_kw"),
+                "status": entry_status(bid, evs),
+                "severity": _twin_worst(evs),
+                "events": evs,
+            }
+        )
+
+    campus_evs = [e for e in hour_events if e.get("building_id") == "CAMPUS"]
+    # The newest hours, plus every hour that flags a specific building, so a
+    # building's own problems stay reachable even when they are older.
+    listed = sorted(
+        set(hours[:36])
+        | {ts for ts in hours if any(e.get("building_id") != "CAMPUS" for e in by_ts[ts])}
+        | ({focus} if focus else set()),
+        reverse=True,
+    )
+    return ok(
+        {
+            "focus_timestamp": focus,
+            "hours": [
+                {
+                    "timestamp": ts,
+                    "count": len(by_ts[ts]),
+                    "severity": _twin_worst(by_ts[ts]),
+                    "buildings": sorted({e.get("building_id") for e in by_ts[ts]}),
+                }
+                for ts in listed
+            ],
+            "campus": {
+                "building_id": "CAMPUS",
+                "name": building_name("CAMPUS"),
+                "status": entry_status("CAMPUS", campus_evs),
+                "severity": _twin_worst(campus_evs),
+                "events": campus_evs,
+            },
+            "buildings": buildings,
+            "agent": {
+                "state": snap.get("state"),
+                "has_run": snap.get("has_run"),
+                "event": {
+                    "timestamp": agent_event.get("timestamp"),
+                    "building_id": agent_event.get("building_id"),
+                    "event_type": agent_event.get("event_type"),
+                } if agent_event else None,
+            },
+            "execution_mode": "SIMULATED",
+        }
+    )
 
 
 @app.get("/api/events")

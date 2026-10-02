@@ -19,6 +19,54 @@
   <div class="sim-badge large">SIMULATED</div>
 </section>
 
+<!-- ============================================================ -->
+<!-- 3D CAMPUS MAP                                                 -->
+<!-- Every building in 3D. A building (or the whole campus) with  -->
+<!-- an ML-flagged problem at the chosen hour turns red. Select   -->
+<!-- it to have the agent propose solutions and execute one       -->
+<!-- (simulated, after your approval). Fixed problems turn green. -->
+<!-- ============================================================ -->
+<section class="panel twin3d" id="twin3d">
+  <div class="panel-head">
+    <div>
+      <div class="panel-kicker">3D CAMPUS MAP</div>
+      <h3>See where the problem is</h3>
+      <p class="twin-lab-sub">Buildings with a problem at the selected hour turn red. Select a building, or the campus ground, to get solutions and execute one.</p>
+    </div>
+    <button type="button" class="secondary-btn" id="twin3d-toggle" aria-expanded="true">Hide 3D map</button>
+  </div>
+
+  <div id="twin3d-body">
+    <div class="twin3d-toolbar">
+      <label class="twin3d-hour">
+        <span>Analysed hour</span>
+        <select id="twin3d-hour"><option>Loading…</option></select>
+      </label>
+      <div class="twin3d-chips" id="twin3d-chips" role="tablist" aria-label="Select a building"></div>
+      <button type="button" class="secondary-btn twin3d-reset" id="twin3d-reset">Reset view</button>
+    </div>
+
+    <div class="twin3d-grid">
+      <div class="twin3d-stage" id="twin3d-stage">
+        <canvas id="twin3d-canvas" aria-label="3D campus map"></canvas>
+        <div class="twin3d-labels" id="twin3d-labels"></div>
+        <div class="twin3d-legend">
+          <span><i class="twin3d-dot is-problem"></i>Problem</span>
+          <span><i class="twin3d-dot is-resolved"></i>Resolved</span>
+          <span><i class="twin3d-dot is-normal"></i>Normal</span>
+          <span><i class="twin3d-dot is-selected"></i>Selected</span>
+        </div>
+        <div class="twin3d-hint">Drag to rotate · scroll to zoom · click a building</div>
+        <div class="twin3d-fallback" id="twin3d-fallback" hidden>3D view is not available in this browser (WebGL is off). Use the building buttons above; solutions still work.</div>
+      </div>
+
+      <aside class="twin3d-side" id="twin3d-side" aria-live="polite">
+        <div class="empty-state">Loading campus…</div>
+      </aside>
+    </div>
+  </div>
+</section>
+
 <section class="panel">
   <div class="panel-head">
     <div><div class="panel-kicker">SCENARIO COMPARISON</div><h3>Candidate actions</h3></div>
@@ -141,4 +189,9 @@
     <div id="twin-selected-meta" class="metric-stack"></div>
   </article>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/three.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/twin_map3d.js') }}"></script>
 {% endblock %}

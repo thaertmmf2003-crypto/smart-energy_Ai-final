@@ -285,7 +285,9 @@
     "energy data": "بيانات الطاقة", "readings, events and actions in energy.db (2016-01-01 → 2017-12-31)": "القراءات والأحداث والإجراءات في energy.db (2016-01-01 ← 2017-12-31)",
     "ask about the project or its data, e.g. energy on 2016-07-01, peak day in 2017...": "اسأل عن المشروع أو بياناته، مثلاً: الطاقة يوم 2016-07-01، يوم الذروة في 2017...",
     "retrieving…": "جارٍ الاسترجاع…", "quoted from retrieved sections": "مقتبس من الأقسام المسترجعة", "computed from the project dataset": "محسوب من بيانات المشروع",
-    "no matching data or document": "لا توجد بيانات أو مستندات مطابقة", "project data · computed from energy.db": "بيانات المشروع · محسوبة من energy.db",
+    "no matching data or document": "لا توجد بيانات أو مستندات مطابقة",
+    "you asked": "سؤالك", "show the exact numbers behind this answer": "اعرض الأرقام الدقيقة وراء هذه الإجابة",
+    "sources": "المصادر", "project data (computed from the dataset)": "بيانات المشروع (محسوبة من البيانات)", "project data · computed from energy.db": "بيانات المشروع · محسوبة من energy.db",
     "[d] project data (computed from the dataset)": "[D] بيانات المشروع (محسوبة من البيانات)",
     "live operational data, from the agent (not from the knowledge base)": "بيانات تشغيلية مباشرة من الوكيل (ليست من قاعدة المعرفة)",
     "neither the knowledge base nor the project data covers this question. try asking about consumption on a specific date (e.g. 2016-07-01), a building, hvac, solar, batteries, ev charging, events, demand response or how the agent makes decisions.":
@@ -333,6 +335,43 @@
     "(labelled anomaly)": "(شذوذ موسوم)",
     "repeat your password": "أعد كتابة كلمة المرور",
     "per event hour": "لكل ساعة حدث", "events": "حدثاً", "system ready": "النظام جاهز", "active": "مفعّل", "deactivated": "معطّل", "english": "English",
+
+    "solar farm": "مزرعة الطاقة الشمسية", "battery storage": "تخزين البطاريات", "ev charging hub": "محطة شحن السيارات",
+    "rooftop hvac units": "وحدات التكييف على الأسطح", "on the map": "على الخريطة", "standby": "جاهزية",
+    "discharging": "يتم التفريغ", "proposed: discharge": "مقترح: تفريغ", "charging shifted": "تم تأجيل الشحن",
+    "proposed: shift charging": "مقترح: تأجيل الشحن",
+    // ---------- 3D campus map ----------
+    "3d campus map": "خريطة الحرم ثلاثية الأبعاد", "see where the problem is": "شوف وين المشكلة",
+    "buildings with a problem at the selected hour turn red. select a building, or the campus ground, to get solutions and execute one.":
+      "المباني اللي فيها مشكلة بالساعة المختارة بتصير حمراء. اختر مبنى أو أرض الحرم لتحصل على الحلول وتنفّذ واحد منها.",
+    "hide 3d map": "إخفاء الخريطة ثلاثية الأبعاد", "show 3d map": "عرض الخريطة ثلاثية الأبعاد",
+    "analysed hour": "الساعة المحلَّلة", "reset view": "إعادة ضبط العرض", "problem": "مشكلة", "resolved": "تم الحل",
+    "drag to rotate · scroll to zoom · click a building": "اسحب للتدوير · مرّر للتكبير · اضغط على مبنى",
+    "3d view is not available in this browser (webgl is off). use the building buttons above; solutions still work.":
+      "العرض ثلاثي الأبعاد غير متاح بهذا المتصفح (WebGL معطّل). استخدم أزرار المباني بالأعلى، والحلول بتشتغل عادي.",
+    "loading campus…": "جارٍ تحميل الحرم…", "campus status": "حالة الحرم", "all clear": "لا توجد مشاكل",
+    "select a building on the map or above.": "اختر مبنى من الخريطة أو من الأعلى.",
+    "problem detected": "تم اكتشاف مشكلة", "live load": "الحمل الحالي",
+    "floor area": "المساحة", "max power": "أقصى قدرة", "buildings": "المباني", "solar pv": "ألواح شمسية",
+    "ev charging": "شحن السيارات", "battery": "البطارية",
+    "analyze & suggest solutions": "حلّل واقترح حلول",
+    "the agent gathers evidence, forecasts, simulates every candidate action in the digital twin and recommends the best one.":
+      "الوكيل بيجمع الأدلة، بيتنبأ، بيحاكي كل إجراء مرشّح بالتوأم الرقمي وبيوصي بالأفضل.",
+    "no problem flagged here at this hour. pick an hour from the list that names this building.":
+      "ما في مشكلة هون بهالساعة. اختر ساعة من القائمة مذكور فيها هالمبنى.",
+    "the agent executed and verified a solution for this hour.": "الوكيل نفّذ حل لهالساعة وتحقق منه.",
+    "proposed solution": "الحل المقترح", "all simulated solutions": "كل الحلول المُحاكاة", "recommended": "موصى به",
+    "fails constraints": "لا يحقق القيود", "execute solution": "نفّذ الحل", "reject": "رفض",
+    "executing is your approval. the action runs in simulation only, then the agent verifies the result.":
+      "التنفيذ يعني موافقتك. الإجراء بيشتغل بالمحاكاة فقط، وبعدها الوكيل بيتحقق من النتيجة.",
+    "problem resolved": "تم حل المشكلة", "executed, below target": "تم التنفيذ، دون الهدف",
+    "rejected. nothing was executed.": "تم الرفض. لم يُنفَّذ أي شيء.",
+    "target not met. the agent proposes an alternative.": "لم يتحقق الهدف. الوكيل يقترح بديلاً.",
+    "the agent stopped.": "توقف الوكيل.", "executing in simulation and verifying…": "جارٍ التنفيذ بالمحاكاة والتحقق…",
+    "the agent is analysing…": "الوكيل يحلّل…", "laboratory": "مختبر", "classroom": "قاعة دراسية",
+    "solutions ready. your approval executes one.": "الحلول جاهزة. موافقتك بتنفّذ واحد منها.",
+    "executed and verified. problem resolved.": "تم التنفيذ والتحقق. انحلّت المشكلة.",
+    "executed (simulated).": "تم التنفيذ (محاكاة).",
   };
 
   const MONTHS = { january: "كانون الثاني", february: "شباط", march: "آذار", april: "نيسان", may: "أيار", june: "حزيران", july: "تموز",
@@ -343,6 +382,11 @@
   const action = s => AR[norm(s)] ?? s;
 
   const PATTERNS = [
+    [/^(\d+) chargers$/i, (m) => `${m[1]} شواحن`],
+    [/^SOC (\d+)%$/i, (m) => `الشحن ${m[1]}%`],
+    [/^(\d+) open problems?$/i, (m) => `${m[1]} مشكلة مفتوحة`],
+    [/^problems at (.+)$/i, (m) => `المشاكل عند ${m[1]}`],
+    [/^Source (\d+|D)$/, (m) => `المصدر ${m[1]}`],
     [/^([−+-]?[\d.]+%) vs forecast$/i, (m) => `${m[1]} مقارنة بالتنبؤ`],
     [/^([\d.]+%) of grid limit$/i, (m) => `${m[1]} من حد الشبكة`],
     [/^score ([\d.]+)$/i, (m) => `النتيجة ${m[1]}`],

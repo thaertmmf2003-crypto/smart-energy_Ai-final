@@ -1584,11 +1584,24 @@
 
   function renderRagSources(sources) {
     return safeArray(sources).map((s, i) => `
-      <details class="rag-source${s.kind === "data" ? " data-source" : ""}" ${s.kind === "data" ? "" : "open"}>
-        <summary>[${esc(s.ref ?? i + 1)}] ${esc(s.title || s.document || "Source")}</summary>
+      <details class="rag-source${s.kind === "data" ? " data-source" : ""}">
+        <summary><span class="rag-ref">${esc(s.ref ?? i + 1)}</span>${esc(s.title || s.document || "Source")}</summary>
         <div><b>${esc(s.section || "—")}</b> · ${esc(s.document || "—")}</div>
         <p>${esc(s.excerpt || "")}</p>
       </details>`).join("");
+  }
+
+  // Turns the answer text into readable paragraphs: the first one is the direct
+  // answer (larger), **x** becomes bold, and [1] / [D] become small citation chips.
+  function renderRagAnswer(text, rtl) {
+    const paras = String(text || "—").split(/\n\s*\n|\n/).map(p => p.trim()).filter(Boolean);
+    return paras.map((p, i) => {
+      let h = esc(p);
+      if (rtl) h = ltrNumbers(h);
+      h = h.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+           .replace(/\s?\[(<span dir="ltr">)?(\d+|D)(<\/span>)?\]/g, '<sup class="cite" title="Source $2">$2</sup>');
+      return `<p class="${i === 0 ? "rag-lead" : ""}">${h}</p>`;
+    }).join("");
   }
 
   async function askRag(question) {
@@ -1607,19 +1620,27 @@
           : d.mode === "extractive"
             ? "Quoted from retrieved sections"
             : "No matching data or document";
-      const rtl = /[\u0600-\u06FF]/.test(question) ? ' dir="auto"' : "";
-      const facts = d.data && safeArray(d.data.facts).length
-        ? `<section class="rag-data"><b>Project data · computed from energy.db</b><ul${rtl}>${
-            safeArray(d.data.facts).map(f => `<li class="${/^\s/.test(f) ? "sub" : ""}">${rtl ? ltrNumbers(esc(String(f).trim())) : esc(String(f).trim())}</li>`).join("")
-          }</ul></section>`
+      const isAr = /[\u0600-\u06FF]/.test(question);
+      const rtl = isAr ? ' dir="rtl"' : ' dir="ltr"';
+      const factList = d.data ? safeArray(d.data.facts) : [];
+      const facts = factList.length
+        ? `<details class="rag-data">
+             <summary><span>Show the exact numbers behind this answer</span><em>${factList.length}</em></summary>
+             <div class="rag-data-note">Project data · computed from energy.db</div>
+             <ul${rtl} data-no-i18n>${
+               factList.map(f => `<li class="${/^\s/.test(f) ? "sub" : ""}">${isAr ? ltrNumbers(esc(String(f).trim())) : esc(String(f).trim())}</li>`).join("")
+             }</ul>
+           </details>`
         : "";
+      const sources = safeArray(d.sources);
       if (root) root.innerHTML = `
+        <div class="rag-question"${rtl}><span class="rag-q-label">You asked</span><span class="rag-q-text" data-no-i18n>${esc(question)}</span></div>
         <div class="rag-mode tag">${esc(modeText)}</div>
-        <div class="rag-content"${rtl}>${(rtl ? ltrNumbers(esc(d.answer || "—")) : esc(d.answer || "—")).replace(/\[(<span dir="ltr">)?(\d+|D)(<\/span>)?\]/g, '<mark>[$2]</mark>')}</div>
+        <div class="rag-content"${rtl} data-no-i18n>${renderRagAnswer(d.answer, isAr)}</div>
         ${d.notice ? `<div class="notice">${esc(d.notice)}</div>` : ""}
         ${facts}
         ${d.live_context ? `<section class="live-context"><b>Live operational data, from the agent (not from the knowledge base)</b><pre>${esc(JSON.stringify(d.live_context, null, 2))}</pre></section>` : ""}
-        <div class="rag-sources">${renderRagSources(d.sources)}</div>`;
+        ${sources.length ? `<div class="rag-sources"><div class="rag-sources-head">Sources</div>${renderRagSources(sources)}</div>` : ""}`;
       setText("#rag-status", modeText);
     } catch (e) {
       if (root) root.innerHTML = `<div class="empty-state">${esc(e.message)}</div>`;
@@ -1699,6 +1720,13 @@
       await loadEvents("#op-events");
       await loadAgent();
     } else if (page === "digital_twin") {
+      // The 3D campus map (twin_map3d.js) runs and approves analyses itself;
+      // it broadcasts each new snapshot so the cards and lab below follow.
+      document.addEventListener("twin3d:agent", e => {
+        if (!e.detail) return;
+        state.agent = e.detail;
+        renderAgentEverywhere();
+      });
       await setupTwinLab();
       loadHolidayAudit();
       loadAgentLearning();

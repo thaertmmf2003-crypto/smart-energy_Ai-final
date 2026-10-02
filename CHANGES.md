@@ -1,3 +1,42 @@
+# Knowledge answers: larger, clearer, in plain language
+
+## Plain-language answers (data_qa.py)
+Data answers used to be one terse line ("… 2016-07-05 (الثلاثاء) لـالحرم كامل (3 مباني):
+10,117.0 kWh (ذروة 607.9 kW عند 15:00)"). Every intent now gets a short explanation in
+the question's language, built from the same computed figures:
+- friendly dates and times: "Tuesday 5 July 2016", "3 pm" / "الثلاثاء 5 تموز 2016"، "الساعة 3 عصراً";
+- sensible rounding (10,117 kWh, 6.8 million kWh), the key figure in bold;
+- what the figure means: when demand peaked and whether that is the normal pattern,
+  each building's share in %, the same weekday that month, the same month/year
+  in the other year, the weather, the forecast versus actual, the events of the day;
+- rankings name the winner, then the next two; events are grouped by type and
+  severity with the busiest day; action results read as "285 of 348 succeeded —
+  about 82% (roughly 8 out of 10)"; forecast accuracy is described as
+  very accurate / accurate … with the best and worst building;
+- "no data" answers say which dates exist and suggest a question to try.
+The exact one-line result ("headline") and the full-precision facts are still
+returned, and the language model receives both.
+
+## Document answers (rag_service.py)
+Quoted sentences are grouped into one short paragraph per source with a single
+citation, instead of a [n] after every sentence; list dashes and markdown are
+stripped. The LLM prompt now asks for a direct first sentence, everyday words,
+short paragraphs, friendly dates/times and rounded figures.
+
+## Knowledge page (app.js, app.css)
+- Answer text 12 px → 15.5 px (Arabic 16.5 px), the first sentence 18.5–19.5 px in a
+  highlighted box; paragraphs instead of one block; bold key figures.
+- The question is repeated above the answer ("You asked" / "سؤالك").
+- Citations are small numbered chips; the exact figures sit in a collapsible
+  "Show the exact numbers behind this answer" panel (13 px); sources are listed
+  under "Sources" with larger text.
+- Works in Arabic (RTL) and English, light and dark, every palette
+  (light-mode contrast audit of the answer: 0 elements below 4.5:1 in all 9 palettes).
+
+## Tests
+test_data_qa.py (29 checks, 4 new for the plain-language answers) and
+test_arabic.py check the answer together with the exact figures.
+
 # Arabic everywhere + Arabic knowledge assistant + clearer stage names (light mode)
 
 ## Complete Arabic interface (static/js/i18n_ar.js — new)

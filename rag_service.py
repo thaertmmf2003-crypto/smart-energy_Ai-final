@@ -372,8 +372,14 @@ SYSTEM_PROMPT = (
     "not contain the answer, say so plainly. If a LIVE OPERATIONAL DATA block is "
     "provided, say clearly which statements come from it. Reply in the same "
     "language as the question (Arabic questions get Arabic answers, keeping "
-    "numbers, units and building codes in Latin characters). Plain prose, no "
-    "headings, no tables, under 220 words; lead with the direct answer."
+    "numbers, units and building codes in Latin characters). Write for a reader "
+    "who is not an energy expert: lead with the direct answer in one clear "
+    "sentence, then explain what it means in everyday words (for example, when "
+    "the peak happened and why that is normal or unusual). Use short paragraphs "
+    "separated by a blank line, friendly dates (Tuesday 5 July 2016) and clock "
+    "times (3 pm), and round figures sensibly (10,117 kWh rather than 10,117.0). "
+    "Avoid jargon; if you must use a technical term, explain it in a few words. "
+    "No headings, no tables, no bullet lists, under 220 words."
 )
 
 
@@ -484,6 +490,14 @@ def _call_llm(provider: str, model: str, user_prompt: str) -> str:
 # =========================================================
 # RAG SERVICE
 # =========================================================
+
+
+def _clean_sentence(sentence: str) -> str:
+    """Strip markdown the reader should not see (list dashes, emphasis, backticks)."""
+    s = re.sub(r"^\s*(?:[-*•]|\d+[.)])\s+", "", sentence)
+    s = re.sub(r"\*\*(.+?)\*\*", r"\1", s)
+    s = s.replace("`", "")
+    return s.strip()
 
 
 class RAGService:
@@ -630,7 +644,7 @@ class RAGService:
         model = _model_for(provider)
         data_block = None
         if data is not None:
-            data_block = {"intent": data["intent"], "answer": data["answer"], "facts": data["facts"],
+            data_block = {"intent": data["intent"], "answer": data["answer"], "facts": data["facts"], "headline": data.get("headline", ""),
                           "plan": data.get("plan")}
 
         if not hits and data is None:
@@ -718,7 +732,10 @@ class RAGService:
         parts = []
         if data is not None:
             parts.append("PROJECT DATA [D] (computed from the project database; exact figures):")
-            parts.append("Direct answer: " + data["answer"])
+            if data.get("headline"):
+                parts.append("Exact result: " + data["headline"])
+            parts.append("Plain-language draft (rounded for readers; you may reuse its wording): "
+                         + data["answer"].replace("**", ""))
             parts.append("\n".join(f"- {f.strip().lstrip('• ')}" for f in data["facts"]))
         if hits:
             parts.append("KNOWLEDGE-BASE EXCERPTS:")
@@ -751,9 +768,21 @@ class RAGService:
             chunk = hits[0][0]
             return f"{_split_sentences(chunk.text)[0] if _split_sentences(chunk.text) else chunk.text} [1]"
 
-        best = sorted(scored, key=lambda s: s[0], reverse=True)[:4]
+        best = sorted(scored, key=lambda s: s[0], reverse=True)[:5]
         best.sort(key=lambda s: (s[1], s[2]))  # restore reading order
-        return " ".join(f"{sentence} [{rank}]" for _score, rank, _pos, sentence in best)
+        # One short paragraph per source, cited once at its end, reads far more
+        # naturally than a citation after every sentence.
+        paragraphs: List[str] = []
+        current_rank, current = None, []
+        for _score, rank, _pos, sentence in best:
+            if rank != current_rank and current:
+                paragraphs.append(" ".join(current) + f" [{current_rank}]")
+                current = []
+            current_rank = rank
+            current.append(_clean_sentence(sentence))
+        if current:
+            paragraphs.append(" ".join(current) + f" [{current_rank}]")
+        return "\n".join(paragraphs)
 
 
 # Module-level singleton used by app.py

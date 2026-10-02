@@ -645,6 +645,192 @@ def _weekday(ts: pd.Timestamp, ar: bool) -> str:
 
 
 # =========================================================
+# HUMAN LANGUAGE
+# ---------------------------------------------------------
+# The "facts" list keeps every figure at full precision. The answer the reader
+# sees first is written as plain sentences: friendly dates ("Tuesday 5 July
+# 2016"), clock times ("3 pm"), rounded numbers and a short explanation of what
+# the figure means. **x** marks the key figure; the UI renders it in bold.
+# =========================================================
+
+AR_MONTHS = ["كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول",
+             "تشرين الأول", "تشرين الثاني", "كانون الأول"]
+
+ACTION_NAMES = {
+    "COMBINED_ACTION": ("الإجراء المركّب (بطارية + تكييف + شحن السيارات)", "the combined action (battery + HVAC + EV)"),
+    "BATTERY_DISCHARGE": ("تفريغ البطارية وقت الذروة", "discharging the battery at the peak"),
+    "HVAC_SETPOINT_ADJUSTMENT": ("تعديل ضبط حرارة التكييف", "adjusting the HVAC set-point"),
+    "EV_LOAD_SHIFT": ("تأجيل شحن السيارات الكهربائية", "shifting EV charging"),
+}
+EVENT_NAMES = {
+    "PEAK_DEMAND_RISK": ("تنبيه خطر ذروة الطلب (الطلب المتوقع يقترب من حد الاستيراد من الشبكة)",
+                         "peak-demand risk alerts (predicted demand approaching the grid import limit)"),
+    "ENERGY_ANOMALY": ("استهلاك أعلى من المتوقع بشكل غير طبيعي", "unusually high consumption compared with the expected baseline"),
+    "SOLAR_UNDERPERFORMANCE": ("ضعف غير طبيعي في توليد الطاقة الشمسية", "solar generation well below what was expected"),
+}
+SEVERITY_NAMES = {"CRITICAL": ("حرجة", "critical"), "HIGH": ("عالية", "high"), "ELEVATED": ("مرتفعة", "elevated")}
+
+
+def _hn(x: float, unit: str = "", ar: bool = False) -> str:
+    """Round for reading: 10,117 · 48.3 · 6.8 million."""
+    if x is None or pd.isna(x):
+        return "—"
+    ax = abs(x)
+    if ax >= 1_000_000:
+        s = f"{x / 1_000_000:,.2f}".rstrip("0").rstrip(".") + (" مليون" if ar else " million")
+    elif ax >= 100:
+        s = f"{x:,.0f}"
+    elif ax >= 10:
+        s = f"{x:,.1f}".rstrip("0").rstrip(".")
+    else:
+        s = f"{x:,.2f}".rstrip("0").rstrip(".")
+    return f"{s} {unit}".strip() if unit and unit != "%" else f"{s}{unit}"
+
+
+def _hpct(x: float) -> str:
+    ax = abs(x)
+    if ax >= 10:
+        return f"{x:.0f}%"
+    if ax >= 1:
+        t = f"{x:.1f}"
+    elif ax >= 0.01:
+        t = f"{x:.2f}"
+    else:
+        return "0%"
+    return t.rstrip("0").rstrip(".") + "%"
+
+
+def _li(word: str) -> str:
+    """Arabic preposition لـ: لمبنى، للإجراء."""
+    return "لل" + word[2:] if word.startswith("ال") else "ل" + word
+
+
+def _bval(b: str, v: str, ar: bool, pct: str = "") -> str:
+    """'مبنى الإدارة (B001) بـ1,447 kWh (14%)' / 'the Administration building (B001) with 1,447 kWh (14%)'."""
+    tail = f" ({pct})" if pct else ""
+    return f"{_hbuilding(b, ar)} بـ{v}{tail}" if ar else f"{_hbuilding(b, ar)} with {v}{tail}"
+
+
+def _hdate(ts: pd.Timestamp, ar: bool, weekday: bool = True, year: bool = True) -> str:
+    wd = (_weekday(ts, ar) + " ") if weekday else ""
+    if ar:
+        return f"{wd}{ts.day} {AR_MONTHS[ts.month - 1]}" + (f" {ts.year}" if year else "")
+    return f"{wd}{ts.day} {ts:%B}" + (f" {ts.year}" if year else "")
+
+
+def _hmonth(ts: pd.Timestamp, ar: bool) -> str:
+    return f"{AR_MONTHS[ts.month - 1]} {ts.year}" if ar else f"{ts:%B %Y}"
+
+
+def _hhour(h: int, ar: bool) -> str:
+    h = int(h) % 24
+    if ar:
+        if h == 0:
+            return "منتصف الليل"
+        if h == 12:
+            return "الساعة 12 ظهراً"
+        h12 = h if h <= 12 else h - 12
+        part = ("ليلاً" if h <= 3 else "فجراً" if h <= 5 else "صباحاً" if h <= 11 else
+                "ظهراً" if h <= 14 else "عصراً" if h <= 17 else "مساءً" if h <= 20 else "ليلاً")
+        return f"الساعة {h12} {part}"
+    if h == 0:
+        return "midnight"
+    if h == 12:
+        return "noon"
+    return f"{h if h < 12 else h - 12} {'am' if h < 12 else 'pm'}"
+
+
+def _hwhen(ts: pd.Timestamp, ar: bool, same_day: bool) -> str:
+    """'at 3 pm' within one day, otherwise 'on Wednesday 6 July at 4 pm' (Arabic without prepositions)."""
+    if same_day:
+        return _hhour(ts.hour, ar) if ar else f"at {_hhour(ts.hour, ar)}"
+    d = _hdate(ts, ar, weekday=True, year=False)
+    return f"يوم {d} {_hhour(ts.hour, ar)}" if ar else f"on {d} at {_hhour(ts.hour, ar)}"
+
+
+def _hscope(buildings: List[str], ar: bool) -> str:
+    if not buildings or len(buildings) == len(BUILDINGS):
+        return "الحرم كاملاً (المباني الثلاثة)" if ar else "the whole campus (all three buildings)"
+    names = [f"{BUILDINGS[b]['ar']} ({b})" if ar else f"the {BUILDINGS[b]['en']} building ({b})"
+             for b in buildings if b in BUILDINGS]
+    return (" و".join(names)) if ar else " and ".join(names)
+
+
+def _hbuilding(b: str, ar: bool) -> str:
+    if b not in BUILDINGS:
+        return b
+    return f"{BUILDINGS[b]['ar']} ({b})" if ar else f"the {BUILDINGS[b]['en']} building ({b})"
+
+
+def _hperiod(p: Optional[Period], ar: bool, data: Optional["ProjectData"] = None) -> str:
+    """Phrase that can start a sentence: 'On Tuesday 5 July 2016', 'في تموز 2016'."""
+    if p is None or p.kind == "all":
+        if data is not None and data.first is not None:
+            return (f"خلال كامل فترة البيانات ({data.first.year}–{data.last.year})" if ar else
+                    f"Over the whole dataset ({data.first.year}–{data.last.year})")
+        return "خلال كامل فترة البيانات" if ar else "Over the whole dataset"
+    if p.kind == "day":
+        return f"يوم {_hdate(p.start, ar)}" if ar else f"On {_hdate(p.start, ar)}"
+    if p.kind == "month":
+        return f"في شهر {_hmonth(p.start, ar)}" if ar else f"In {_hmonth(p.start, ar)}"
+    if p.kind == "year":
+        return f"في سنة {p.start.year}" if ar else f"In {p.start.year}"
+    if p.kind == "hour":
+        return (f"يوم {_hdate(p.start, ar)} {_hhour(p.start.hour, ar)}" if ar else
+                f"On {_hdate(p.start, ar)} at {_hhour(p.start.hour, ar)}")
+    last = p.end - pd.Timedelta(hours=1)
+    return (f"بين {_hdate(p.start, ar, weekday=False)} و{_hdate(last, ar, weekday=False)}" if ar else
+            f"Between {_hdate(p.start, ar, weekday=False)} and {_hdate(last, ar, weekday=False)}")
+
+
+def _mid(phrase: str) -> str:
+    """English period phrase used mid-sentence: 'On …' → 'on …'."""
+    return phrase[:1].lower() + phrase[1:]
+
+
+def _ar_count(n: int, one: str, two: str, few: str, many: str) -> str:
+    """Arabic number agreement: 1 حدث، 2 حدثان، 3-10 أحداث، 11+ حدثاً."""
+    if n == 1:
+        return f"{one} واحد" if not one.endswith("ة") else f"{one} واحدة"
+    if n == 2:
+        return two
+    if 3 <= n % 100 <= 10:
+        return f"{n:,} {few}"
+    return f"{n:,} {many}"
+
+
+def _change_word(diff_pct: float, ar: bool) -> str:
+    a = abs(diff_pct)
+    up = diff_pct >= 0
+    if a < 3:
+        return "تقريباً بنفس المستوى" if ar else "about the same"
+    size_ar = "بقليل" if a < 10 else ("بشكل واضح" if a < 25 else "بشكل كبير")
+    size_en = "slightly" if a < 10 else ("noticeably" if a < 25 else "much")
+    if ar:
+        return f"{'أعلى' if up else 'أقل'} {size_ar} (بنسبة {_hpct(a)})"
+    return f"{size_en} {'higher' if up else 'lower'} ({_hpct(a)})"
+
+
+def _weather_word(mean_c: float, ar: bool) -> str:
+    if mean_c < 10:
+        return "بارداً" if ar else "cold"
+    if mean_c < 22:
+        return "معتدلاً" if ar else "mild"
+    if mean_c < 28:
+        return "دافئاً" if ar else "warm"
+    return "حاراً" if ar else "hot"
+
+
+# Verbs per metric: (Arabic, English) with {scope} and {value}.
+METRIC_SENTENCE = {
+    "energy": ("استهلك {scope} حوالي **{value}** من الكهرباء", "{scope} used about **{value}** of electricity"),
+    "hvac": ("استهلك التكييف (HVAC) في {scope} حوالي **{value}**", "air-conditioning (HVAC) in {scope} used about **{value}**"),
+    "solar": ("ولّدت الألواح الشمسية في {scope} حوالي **{value}**", "the solar panels at {scope} generated about **{value}**"),
+    "ev": ("استهلك شحن السيارات الكهربائية في {scope} حوالي **{value}**", "EV charging at {scope} used about **{value}**"),
+}
+
+
+# =========================================================
 # COMPUTATION
 # =========================================================
 
@@ -1034,6 +1220,538 @@ def _overview(plan: Plan, data: ProjectData) -> Dict[str, Any]:
 
 
 # =========================================================
+# STORIES (the plain-language answer shown first)
+# =========================================================
+
+HOUR_SENTENCE = {
+    "energy": ("كان {scope} يستهلك حوالي **{value}**", "{scope} was drawing about **{value}**"),
+    "hvac": ("كان التكييف في {scope} يستهلك حوالي **{value}**", "air-conditioning in {scope} was drawing about **{value}**"),
+    "solar": ("كانت الألواح الشمسية في {scope} تولّد حوالي **{value}**", "the solar panels at {scope} were producing about **{value}**"),
+    "ev": ("كان شحن السيارات الكهربائية في {scope} يستهلك حوالي **{value}**", "EV charging at {scope} was drawing about **{value}**"),
+}
+
+
+def _sent(s: str) -> str:
+    s = s.strip()
+    return s[:1].upper() + s[1:] if s and s[0].isascii() else s
+
+
+def _join_ar(items: List[str]) -> str:
+    if len(items) <= 1:
+        return "".join(items)
+    return "، ".join(items[:-1]) + " و" + items[-1]
+
+
+def _join_en(items: List[str]) -> str:
+    if len(items) <= 1:
+        return "".join(items)
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def _grid_note(mean: float, ar: bool) -> str:
+    level = (("منخفض", "low") if mean < 0.35 else ("متوسط", "moderate") if mean < 0.6 else ("مرتفع", "high"))
+    return (f"هذا المقياس من 0 (الشبكة مرتاحة) إلى 1 (الشبكة مجهدة جداً)، أي أن الإجهاد كان {level[0]}." if ar else
+            f"The scale runs from 0 (grid relaxed) to 1 (grid heavily stressed), so the stress was {level[1]}.")
+
+
+def _event_records(data: ProjectData, p: Optional[Period], buildings: List[str]) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    a = _slice(data.anomalies, p)
+    for _, r in a.iterrows():
+        if buildings and r["building_id"] not in buildings:
+            continue
+        rows.append({"ts": r["timestamp"], "b": r["building_id"], "type": r["anomaly_type"], "sev": None,
+                     "labelled": True})
+    e = _slice(data.events, p)
+    for _, r in e.iterrows():
+        if buildings and r["building_id"] not in buildings and r["building_id"] != "CAMPUS":
+            continue
+        rows.append({"ts": r["timestamp"], "b": r["building_id"], "type": r["event_type"], "sev": r["severity"],
+                     "labelled": False})
+    rows.sort(key=lambda x: x["ts"])
+    return rows
+
+
+def _event_phrase(ev: Dict[str, Any], ar: bool, same_day: bool) -> str:
+    name = EVENT_NAMES.get(ev["type"], (ev["type"], ev["type"]))[0 if ar else 1]
+    where = ("الحرم كاملاً" if ar else "the whole campus") if ev["b"] == "CAMPUS" else _hbuilding(ev["b"], ar)
+    when = _hwhen(ev["ts"], ar, same_day)
+    return f"{name} في {where} {when}" if ar else f"{name} in {where} {when}"
+
+
+def _story_hour(plan: Plan, data: ProjectData, metric: str, ts: pd.Timestamp, row: pd.Series,
+                wide: pd.DataFrame) -> List[str]:
+    ar = plan.arabic
+    meta = METRICS[metric]
+    mname = meta["ar" if ar else "en"]
+    when = _hperiod(Period(ts, ts + pd.Timedelta(hours=1), "hour", ""), ar)
+    if meta["kind"] == "site":
+        v = row["site"]
+        out = [(f"{when} كانت {mname} حوالي **{_hn(v, meta['unit'], ar)}**." if ar else
+                f"{when}, the {mname} was about **{_hn(v, meta['unit'], ar)}**.")]
+        if metric == "grid":
+            out.append(_grid_note(v, ar))
+        return out
+    u = "kW" if meta["kind"] == "energy" else meta["unit"]
+    scope = _hscope(plan.buildings or ([] if metric != "battery" else ["B002"]), ar)
+    camp = row["campus"]
+    if meta["kind"] == "energy":
+        tpl = HOUR_SENTENCE[metric][0 if ar else 1]
+        first = tpl.format(scope=scope, value=_hn(camp, u, ar))
+    else:
+        first = (f"كانت {mname} في {scope} حوالي **{_hn(camp, u, ar)}**" if ar else
+                 f"the {mname} in {scope} was about **{_hn(camp, u, ar)}**")
+    out = [(f"{when}، {first}." if ar else f"{when}, {first}.")]
+    bcols = [b for b in wide.columns if b != "campus" and not pd.isna(row.get(b))]
+    if len(bcols) > 1:
+        parts = sorted(((b, row[b]) for b in bcols), key=lambda x: -x[1])
+        items = [f"{BUILDINGS[b]['ar' if ar else 'en']} {_hn(v, u, ar)}" for b, v in parts]
+        out.append((f"حسب المبنى: {_join_ar(items)}." if ar else f"By building: {_join_en(items)}."))
+    if metric == "solar" and camp < 1 and (ts.hour < 6 or ts.hour >= 20):
+        out.append("هذا طبيعي لأن الوقت ليل ولا يوجد ضوء شمس." if ar else "That is expected: it was dark, so there was no sunlight.")
+    return out
+
+
+def _story_energy_period(plan: Plan, data: ProjectData, metric: str, p: Period, wide: pd.DataFrame) -> Tuple[List[str], float]:
+    ar = plan.arabic
+    meta = METRICS[metric]
+    s = wide["campus"].dropna()
+    total = float(s.sum())
+    scope = _hscope(plan.buildings, ar)
+    tpl = METRIC_SENTENCE[metric][0 if ar else 1]
+    lead = tpl.format(scope=scope, value=_hn(total, "kWh", ar))
+    when = _hperiod(p, ar, data)
+    days = max(1, round((s.index.max() - s.index.min()) / pd.Timedelta(days=1)))
+    extra = ""
+    if p.kind != "day" and days > 1:
+        extra = (f"، أي بمعدل {_hn(total / days, 'kWh', ar)} في اليوم" if ar else
+                 f", or about {_hn(total / days, 'kWh', ar)} a day")
+    out = [(f"{when}، {lead}{extra}." if ar else f"{when}, {lead}{extra}.")]
+
+    same_day = p.kind == "day"
+    pk, lo = s.idxmax(), s.idxmin()
+    if metric == "solar":
+        out.append((f"بلغ الإنتاج ذروته {_hwhen(pk, ar, same_day)} (حوالي {_hn(s.max(), 'kW', ar)})." if ar else
+                    f"Generation peaked {_hwhen(pk, ar, same_day)} (about {_hn(s.max(), 'kW', ar)})."))
+    else:
+        noun = ("طلب" if metric == "energy" else "استهلاك") if ar else ("Demand" if metric == "energy" else "Use")
+        line = (f"كان أعلى {noun} {_hwhen(pk, ar, same_day)} (حوالي {_hn(s.max(), 'kW', ar)})، "
+                f"وأقل {noun} {_hwhen(lo, ar, same_day)} (حوالي {_hn(s.min(), 'kW', ar)})." if ar else
+                f"{noun} peaked {_hwhen(pk, ar, same_day)} (about {_hn(s.max(), 'kW', ar)}) and was lowest "
+                f"{_hwhen(lo, ar, same_day)} (about {_hn(s.min(), 'kW', ar)}).")
+        if same_day and metric == "energy" and 9 <= pk.hour <= 18 and (lo.hour < 7 or lo.hour >= 20):
+            line += (" وهذا نمط طبيعي: يرتفع الاستهلاك خلال ساعات الدوام وينخفض في الليل." if ar else
+                     " That is the normal pattern: use rises during working hours and falls at night.")
+        out.append(line)
+
+    bcols = [b for b in wide.columns if b != "campus"]
+    if len(bcols) > 1 and total > 0:
+        tot = sorted(((b, float(wide[b].sum())) for b in bcols), key=lambda x: -x[1])
+        pct = lambda v: _hpct(v / total * 100)  # noqa: E731
+        b0, v0 = tot[0]
+        rest = [_bval(b, _hn(v, 'kWh', ar), ar, pct(v)) for b, v in tot[1:]]
+        out.append((f"صاحب الحصة الأكبر هو {_hbuilding(b0, ar)} بحوالي {_hn(v0, 'kWh', ar)} ({pct(v0)} من المجموع)، "
+                     f"يليه {' ثم '.join(rest)}." if ar else
+                     _sent(f"{_hbuilding(b0, ar)} had the largest share, about {_hn(v0, 'kWh', ar)} ({pct(v0)} of the total), "
+                           f"followed by {_join_en(rest)}.")))
+
+    if same_day and metric == "energy":
+        out.extend(_story_day_context(plan, data, p))
+    elif p.kind in {"month", "year"} and len(plan.periods) == 1:
+        other = None
+        for y in (p.start.year - 1, p.start.year + 1):
+            q = _month_period(y, p.start.month) if p.kind == "month" else _year_period(y)
+            if q.start >= data.first and q.end <= data.last + pd.Timedelta(hours=1):
+                other = q
+                break
+        if other is not None:
+            w2 = _series(data, metric, plan.buildings, other)
+            if not w2.empty:
+                t2 = float(w2["campus"].sum())
+                if t2:
+                    diff = (total - t2) / t2 * 100
+                    olabel = _hmonth(other.start, ar) if p.kind == "month" else str(other.start.year)
+                    out.append((f"للمقارنة: في {olabel} كان المجموع حوالي {_hn(t2, 'kWh', ar)}، "
+                                f"فكانت هذه الفترة {_change_word(diff, ar)}." if ar else
+                                f"For comparison, {olabel} came to about {_hn(t2, 'kWh', ar)}, "
+                                f"so this period was {_change_word(diff, ar)}."))
+    return out, total
+
+
+def _story_day_context(plan: Plan, data: ProjectData, p: Period) -> List[str]:
+    ar = plan.arabic
+    out: List[str] = []
+    wide = _series(data, "energy", plan.buildings, _month_period(p.start.year, p.start.month))
+    if not wide.empty:
+        daily = wide["campus"].resample("D").sum(min_count=1).dropna()
+        same = daily[daily.index.dayofweek == p.start.dayofweek]
+        today = daily.get(p.start.normalize())
+        if today is not None and len(same) > 1 and same.mean():
+            avg = same.mean()
+            diff = (today - avg) / avg * 100
+            out.append((f"للمقارنة: متوسط أيام {_weekday(p.start, True)} في نفس الشهر كان حوالي {_hn(avg, 'kWh', ar)}، "
+                        f"فكان هذا اليوم {_change_word(diff, ar)}." if ar else
+                        f"For comparison, an average {p.start:%A} that month used about {_hn(avg, 'kWh', ar)}, "
+                        f"so this day was {_change_word(diff, ar)}."))
+    w = _slice(data.weather, p)
+    if not w.empty and "temperature_c" in w:
+        t = w["temperature_c"]
+        out.append((f"كان الطقس {_weather_word(t.mean(), ar)}، والحرارة بين {_hn(t.min(), '°C', ar)} و{_hn(t.max(), '°C', ar)}." if ar else
+                    f"The weather was {_weather_word(t.mean(), ar)}, between {_hn(t.min(), '°C', ar)} and {_hn(t.max(), '°C', ar)}."))
+    fc = _slice(data.forecast, p)
+    if not fc.empty and plan.buildings:
+        fc = fc[fc["building_id"].isin(plan.buildings)]
+    if not fc.empty:
+        act, pred = fc["energy"].sum(), fc["predicted_energy"].sum()
+        gap = abs(act - pred) / act * 100 if act else 0
+        if gap < 0.1:
+            out.append((f"وكان نموذج التنبؤ قد توقّع حوالي {_hn(pred, 'kWh', ar)} لهذا اليوم، أي تقريباً نفس الاستهلاك الفعلي (الفرق أقل من 0.1%)." if ar else
+                        f"The forecasting model had predicted about {_hn(pred, 'kWh', ar)} for this day — almost exactly what was used (less than 0.1% off)."))
+        else:
+            out.append((f"وكان نموذج التنبؤ قد توقّع حوالي {_hn(pred, 'kWh', ar)} لهذا اليوم، أي بفرق {_hpct(gap)} فقط عن الاستهلاك الفعلي." if ar else
+                        f"The forecasting model had predicted about {_hn(pred, 'kWh', ar)} for this day, only {_hpct(gap)} away from what was actually used."))
+    ev = _event_records(data, p, plan.buildings)
+    if ev:
+        items = [_event_phrase(e, ar, True) for e in ev[:3]]
+        more = len(ev) - len(items)
+        if ar:
+            head = "سُجّل في هذا اليوم " + _ar_count(len(ev), "حدث", "حدثان", "أحداث", "حدثاً")
+            out.append(f"{head}: {'؛ '.join(items)}" + (f" (و{more} غيرها في التفاصيل)" if more > 0 else "") + ".")
+        else:
+            out.append(f"{len(ev)} event{'s were' if len(ev) > 1 else ' was'} recorded that day: {'; '.join(items)}"
+                       + (f" (and {more} more in the details)" if more > 0 else "") + ".")
+    else:
+        out.append("لم يُسجَّل أي حدث غير طبيعي في هذا اليوم." if ar else "No unusual events were recorded that day.")
+    return out
+
+
+def _story_level_period(plan: Plan, data: ProjectData, metric: str, p: Period, wide: pd.DataFrame) -> List[str]:
+    ar = plan.arabic
+    meta = METRICS[metric]
+    mname = meta["ar" if ar else "en"]
+    u = meta["unit"]
+    s = (wide["site"] if meta["kind"] == "site" else wide["campus"]).dropna()
+    if s.empty:
+        return []
+    same_day = p.kind == "day"
+    when = _hperiod(p, ar, data)
+    where = ""
+    if meta["kind"] != "site":
+        blds = plan.buildings or (["B002"] if metric == "battery" else [])
+        where = (f" في {_hscope(blds, ar)}" if ar else f" in {_hscope(blds, ar)}")
+    lo_t, hi_t = s.idxmin(), s.idxmax()
+    out = [(f"{when}، كان متوسط {mname}{where} حوالي **{_hn(s.mean(), u, ar)}**، "
+            f"وتراوح بين {_hn(s.min(), u, ar)} ({_hwhen(lo_t, ar, same_day)}) و{_hn(s.max(), u, ar)} ({_hwhen(hi_t, ar, same_day)})." if ar else
+            f"{when}, the average {mname}{where} was about **{_hn(s.mean(), u, ar)}**, ranging from "
+            f"{_hn(s.min(), u, ar)} ({_hwhen(lo_t, ar, same_day)}) to {_hn(s.max(), u, ar)} ({_hwhen(hi_t, ar, same_day)}).")]
+    if metric == "grid":
+        out.append(_grid_note(s.mean(), ar))
+    if metric == "battery" and not plan.buildings:
+        out.append("البطارية موجودة في مبنى المختبرات (B002) فقط." if ar else "Only the Labs building (B002) has a battery.")
+    return out
+
+
+def _story_summary(plan: Plan, data: ProjectData) -> List[str]:
+    ar = plan.arabic
+    out: List[str] = []
+    periods = plan.periods or [Period(data.first, data.last + pd.Timedelta(hours=1), "all", "")]
+    totals: Dict[str, List[Tuple[Period, float]]] = {}
+    for p in periods:
+        for metric in plan.metrics:
+            meta = METRICS[metric]
+            wide = _series(data, metric, plan.buildings, p)
+            mname = meta["ar" if ar else "en"]
+            if wide.empty:
+                out.append((f"{_hperiod(p, ar, data)}، لا توجد بيانات عن {mname}." if ar else
+                            f"{_hperiod(p, ar, data)}, there is no {mname} data."))
+                continue
+            if plan.hour is not None and p.kind == "day":
+                ts = p.start + pd.Timedelta(hours=plan.hour)
+                row = wide.loc[wide.index == ts]
+                if row.empty:
+                    out.append(("لا توجد قراءة لهذه الساعة." if ar else "There is no reading for that hour."))
+                    continue
+                out.extend(_story_hour(plan, data, metric, ts, row.iloc[0], wide))
+                continue
+            if meta["kind"] == "energy":
+                paras, total = _story_energy_period(plan, data, metric, p, wide)
+                out.extend(paras)
+                totals.setdefault(metric, []).append((p, total))
+            else:
+                out.extend(_story_level_period(plan, data, metric, p, wide))
+    for metric, vals in totals.items():
+        if len(vals) == 2 and vals[0][1]:
+            (p1, t1), (p2, t2) = vals
+            diff = (t2 - t1) / t1 * 100
+            mname = METRICS[metric]["ar" if ar else "en"]
+            a, b = _hperiod(p1, ar, data), _hperiod(p2, ar, data)
+            out.insert(0, (f"باختصار: {mname} {b} كان {_change_word(diff, ar)} منه {a}." if ar else
+                           f"In short, {mname} {_mid(b)} was {_change_word(diff, ar)} than {_mid(a)}."))
+    return out
+
+
+def _rank_key(k: Any, unit: Optional[str], by_hour_avg: bool, ar: bool) -> str:
+    if by_hour_avg:
+        return _hhour(int(k), ar)
+    if unit == "hour":
+        return _hhour(k.hour, ar)
+    if unit == "month":
+        return _hmonth(k, ar)
+    if unit == "year":
+        return str(k.year)
+    return _hdate(k, ar)
+
+
+def _story_rank(plan: Plan, data: ProjectData) -> List[str]:
+    ar = plan.arabic
+    metric = plan.metrics[0]
+    meta = METRICS[metric]
+    mname = meta["ar" if ar else "en"]
+    agg = "sum" if meta["kind"] == "energy" else "mean"
+    unit = "kWh" if meta["kind"] == "energy" else meta["unit"]
+    word = {"max": ("الأعلى", "highest"), "min": ("الأقل", "lowest")}[plan.rank_dir][0 if ar else 1]
+    out: List[str] = []
+    for p in (plan.periods or [None]):
+        when = _hperiod(p, ar, data)
+        if plan.rank_unit == "building":
+            if meta["kind"] == "site":
+                out.append("هذا المقياس واحد للموقع كله، وليس لكل مبنى على حدة." if ar else
+                           "This measure is the same for the whole site, not per building.")
+                continue
+            wide = _series(data, metric, [], p)
+            if wide.empty:
+                continue
+            vals = getattr(wide.drop(columns="campus"), agg)().sort_values(ascending=plan.rank_dir == "min")
+            b0, v0 = vals.index[0], float(vals.iloc[0])
+            share = ""
+            if agg == "sum" and vals.sum():
+                share = (f" ({_hpct(v0 / vals.sum() * 100)} من مجموع الحرم)" if ar else
+                         f" ({_hpct(v0 / vals.sum() * 100)} of the campus total)")
+            avg_note = "" if agg == "sum" else (" في المتوسط" if ar else " on average")
+            rest = [_bval(b, _hn(v, unit, ar), ar) for b, v in list(vals.items())[1:]]
+            if ar:
+                out.append(f"{when}، كان {_hbuilding(b0, ar)} صاحب {mname} {word}: حوالي **{_hn(v0, unit, ar)}**{avg_note}{share}."
+                           + (f" يليه {' ثم '.join(rest)}." if rest else ""))
+            else:
+                out.append(f"{when}, {_hbuilding(b0, ar)} had the {word} {mname}: about **{_hn(v0, unit, ar)}**{avg_note}{share}."
+                           + (f" It is followed by {_join_en(rest)}." if rest else ""))
+            continue
+
+        wide = _series(data, metric, plan.buildings, p)
+        if wide.empty:
+            continue
+        s = wide["site"] if meta["kind"] == "site" else wide["campus"]
+        by_hour_avg = False
+        if plan.rank_unit == "hour":
+            if p is not None and p.kind == "day":
+                ranked = s
+            else:
+                ranked = s.groupby(s.index.hour).mean()
+                by_hour_avg = True
+        elif plan.rank_unit == "month":
+            ranked = s.resample("MS").mean() if agg == "mean" else s.resample("MS").sum(min_count=1)
+        elif plan.rank_unit == "year":
+            ranked = s.resample("YS").sum(min_count=1) if agg == "sum" else s.resample("YS").mean()
+        else:
+            ranked = s.resample("D").sum(min_count=1) if agg == "sum" else s.resample("D").mean()
+        ranked = ranked.dropna().sort_values(ascending=plan.rank_dir == "min")
+        if ranked.empty:
+            continue
+        top = ranked.head(max(plan.top_n, 3))
+        u = unit if not (plan.rank_unit == "hour" and meta["kind"] == "energy") else "kW"
+        keys = [_rank_key(k, plan.rank_unit, by_hour_avg, ar) for k in top.index]
+        vals = [_hn(float(v), u, ar) for v in top.values]
+        scope = "" if meta["kind"] == "site" else (f" في {_hscope(plan.buildings, ar)}" if ar else f" for {_hscope(plan.buildings, ar)}")
+        unit_word = {"day": ("اليوم", "day"), "month": ("الشهر", "month"), "hour": ("الساعة", "hour"),
+                     "year": ("السنة", "year")}[plan.rank_unit or "day"]
+        owner = "صاحبة" if plan.rank_unit in {"hour", "year"} else "صاحب"
+        pre = ("في المتوسط، " if ar else "On average, ") if by_hour_avg else ""
+        fem = plan.rank_unit in {"hour", "year"}
+        if ar:
+            line = (f"{pre}{unit_word[0]} {owner} {mname} {word} {when} {'كانت' if fem else 'كان'} **{keys[0]}**، "
+                    f"بحوالي **{vals[0]}**{scope}.")
+        else:
+            the = "the" if pre else "The"
+            line = (f"{pre}{the} {unit_word[1]} with the {word} {mname} {_mid(when)} was **{keys[0]}**, "
+                    f"with about **{vals[0]}**{scope}.")
+        nxt = [f"{k} ({v})" for k, v in zip(keys[1:3], vals[1:3])]
+        if nxt:
+            line += (f" {'تليها' if fem else 'يليه'} {' ثم '.join(nxt)}." if ar else
+                     f" Next {'come' if len(nxt) > 1 else 'comes'} {_join_en(nxt)}.")
+        out.append(line)
+        if by_hour_avg and metric == "energy":
+            h0 = int(top.index[0])
+            if plan.rank_dir == "max" and 11 <= h0 <= 17:
+                out.append("أي أن ذروة الطلب تكون عادةً بعد الظهر، خلال ساعات الدوام." if ar else
+                           "In other words, demand usually peaks in the afternoon, during working hours.")
+            elif plan.rank_dir == "min" and (h0 <= 6 or h0 >= 22):
+                out.append("أي أن أهدأ وقت يكون عادةً في ساعات الليل المتأخرة." if ar else
+                           "In other words, the quietest time is usually late at night.")
+        if len(ranked) > 3 and plan.top_n > 3:
+            out.append("القائمة الكاملة في التفاصيل أدناه." if ar else "The full list is in the details below.")
+    return out
+
+
+def _story_events(plan: Plan, data: ProjectData) -> List[str]:
+    ar = plan.arabic
+    out: List[str] = []
+    for p in (plan.periods or [None]):
+        when = _hperiod(p, ar, data)
+        rows = _event_records(data, p, plan.buildings)
+        if not rows:
+            out.append((f"{when}، لا توجد أحداث مسجلة. لم يرصد النظام أي خطر ذروة أو استهلاك غير طبيعي." if ar else
+                        f"{when}, no events were recorded: the system saw no peak risk and no unusual consumption."))
+            continue
+        n = len(rows)
+        out.append((f"{when}، سُجّل **{_ar_count(n, 'حدث', 'حدثان', 'أحداث', 'حدثاً')}**." if ar else
+                    f"{when}, **{n} event{'s' if n != 1 else ''}** {'were' if n != 1 else 'was'} recorded."))
+        by_type: Dict[str, List[Dict[str, Any]]] = {}
+        for r in rows:
+            by_type.setdefault(r["type"], []).append(r)
+        items = []
+        for t, rs in sorted(by_type.items(), key=lambda x: -len(x[1])):
+            name = EVENT_NAMES.get(t, (t, t))[0 if ar else 1]
+            sev: Dict[str, int] = {}
+            for r in rs:
+                if r["sev"]:
+                    sev[r["sev"]] = sev.get(r["sev"], 0) + 1
+            sev_txt = ""
+            if sev:
+                parts = [f"{c} {SEVERITY_NAMES.get(k, (k, k))[0 if ar else 1]}"
+                         for k, c in sorted(sev.items(), key=lambda x: -x[1])]
+                sev_txt = f" ({_join_ar(parts) if ar else _join_en(parts)})"
+            items.append(f"{name}: {len(rs)}{sev_txt}")
+        out.append(("وتوزّعت كالتالي — " + "؛ ".join(items) + "." if ar else "By type — " + "; ".join(items) + "."))
+        if n > 3:
+            per_day = pd.Series([r["ts"].normalize() for r in rows]).value_counts()
+            d0, c0 = per_day.index[0], int(per_day.iloc[0])
+            if c0 > 1:
+                out.append((f"أكثر يوم فيه أحداث كان {_hdate(d0, ar)} ({c0} أحداث)." if ar else
+                            f"The busiest day was {_hdate(d0, ar)}, with {c0} events."))
+        else:
+            ex = [_event_phrase(r, ar, False) for r in rows]
+            out.append(("وهي: " + "؛ ".join(ex) + "." if ar else "They were: " + "; ".join(ex) + "."))
+    return out
+
+
+def _story_actions(plan: Plan, data: ProjectData) -> List[str]:
+    ar = plan.arabic
+    out: List[str] = []
+    for p in (plan.periods or [None]):
+        when = _hperiod(p, ar, data)
+        ver = _slice(data.verification, p)
+        act = _slice(data.actions, p)
+        if ver.empty and act.empty:
+            out.append((f"{when}، لم ينفّذ الوكيل أي إجراء." if ar else f"{when}, the agent carried out no actions."))
+            continue
+        if not ver.empty:
+            n = len(ver)
+            succ = int((ver["verification_status"] == "SUCCESS").sum())
+            rate = succ / n * 100
+            k = round(rate / 10)
+            out.append((f"{when}، نفّذ الوكيل {_ar_count(n, 'إجراء', 'إجراءان', 'إجراءات', 'إجراءً')} وتم التحقق من نتائجها، "
+                        f"نجح منها **{succ}** — أي حوالي **{_hpct(rate)}** (تقريباً {k} من كل 10)." if ar else
+                        f"{when}, the agent carried out {n} verified actions and **{succ}** of them succeeded — "
+                        f"about **{_hpct(rate)}** (roughly {k} out of every 10)."))
+            under = n - succ
+            if under:
+                out.append((f"أما الـ{under} الباقية فحققت تخفيضاً أقل من المتوقع (UNDERPERFORMED)، ولهذا اقترح الوكيل لها إعادة التخطيط." if ar else
+                            f"The other {under} saved less than expected (UNDERPERFORMED), so the agent proposed replanning for them."))
+            out.append((f"في المتوسط حققت الإجراءات {_hpct(ver['performance_ratio_percent'].mean())} من التخفيض المتوقع، "
+                        f"وبلغ مجموع التخفيض الفعلي حوالي {_hn(ver['achieved_reduction_kw'].sum(), 'kW', ar)}." if ar else
+                        f"On average the actions delivered {_hpct(ver['performance_ratio_percent'].mean())} of the expected reduction, "
+                        f"and together they cut about {_hn(ver['achieved_reduction_kw'].sum(), 'kW', ar)} of load."))
+            g = ver.groupby("executed_action")["verification_status"].apply(lambda x: (x == "SUCCESS").mean() * 100)
+            if len(g) > 1:
+                best = g.idxmax()
+                nm = ACTION_NAMES.get(best, (best, best))[0 if ar else 1]
+                out.append((f"أعلى نسبة نجاح كانت {_li(nm)} ({_hpct(g.max())})." if ar else
+                            f"The most reliable was {nm} ({_hpct(g.max())} success)."))
+        if not act.empty:
+            vc = act["recommended_action"].value_counts()
+            nm = ACTION_NAMES.get(vc.index[0], (vc.index[0], vc.index[0]))[0 if ar else 1]
+            out.append((f"الإجراء الأكثر استخداماً كان {nm} ({vc.iloc[0]} مرة)." if ar else
+                        f"The action used most often was {nm} ({vc.iloc[0]} times)."))
+    return out
+
+
+def _story_forecast(plan: Plan, data: ProjectData) -> List[str]:
+    ar = plan.arabic
+    fc_all = data.forecast
+    out: List[str] = []
+    if fc_all.empty:
+        return ["لا يوجد ملف نتائج التنبؤ." if ar else "There is no forecast results file."]
+    lo, hi = fc_all["timestamp"].min(), fc_all["timestamp"].max()
+    for p in (plan.periods or [None]):
+        fc = _slice(fc_all, p)
+        if plan.buildings:
+            fc = fc[fc["building_id"].isin(plan.buildings)]
+        when = (_hperiod(p, ar, data) if p else
+                (f"خلال فترة اختبار النموذج ({_hdate(lo, ar, False)} – {_hdate(hi, ar, False)})" if ar else
+                 f"Over the model's test period ({_hdate(lo, ar, False)} – {_hdate(hi, ar, False)})"))
+        if fc.empty:
+            out.append((f"{when}، لا توجد نتائج تنبؤ؛ نتائج الاختبار تغطي من {_hdate(lo, ar, False)} إلى {_hdate(hi, ar, False)} فقط." if ar else
+                        f"{when}, there are no forecast results; the test set only covers {_hdate(lo, ar, False)} to {_hdate(hi, ar, False)}."))
+            continue
+        mae = fc["absolute_error"].mean()
+        mape = (fc["absolute_error"] / fc["energy"].where(fc["energy"] > 0)).mean() * 100
+        q = (("دقيقاً جداً", "very accurate") if mape < 5 else ("دقيقاً", "accurate") if mape < 10 else
+             ("مقبول الدقة", "reasonably accurate") if mape < 20 else ("ضعيف الدقة", "not very accurate"))
+        only = (" فقط" if ar else "") if mape < 10 else ""
+        only_en = " only" if (mape < 10 and not ar) else ""
+        out.append((f"{when}، كان نموذج التنبؤ {q[0]}: متوسط خطئه حوالي **{_hn(mae, 'kW', ar)}** في الساعة، "
+                    f"أي أن توقعاته ابتعدت عن الاستهلاك الفعلي بحوالي **{_hpct(mape)}**{only} في المتوسط." if ar else
+                    f"{when}, the forecasting model was {q[1]}: its average error was about **{_hn(mae, 'kW', ar)}** per hour, "
+                    f"meaning its predictions were off by{only_en} about **{_hpct(mape)}** on average."))
+        g = fc.groupby("building_id")["absolute_error"].mean()
+        if len(g) > 1:
+            b_best, b_worst = g.idxmin(), g.idxmax()
+            line = (f"كانت التوقعات الأدق {_li(_hbuilding(b_best, ar))} (خطأ {_hn(g.min(), 'kW', ar)})، "
+                    f"والأقل دقة {_li(_hbuilding(b_worst, ar))} (خطأ {_hn(g.max(), 'kW', ar)})." if ar else
+                    _sent(f"predictions were closest for {_hbuilding(b_best, ar)} (error {_hn(g.min(), 'kW', ar)}) "
+                          f"and furthest for {_hbuilding(b_worst, ar)} (error {_hn(g.max(), 'kW', ar)})."))
+            if b_worst == "B002":
+                line += (" وهذا متوقع لأنه المبنى الأكبر استهلاكاً، فأي نسبة خطأ صغيرة تعني كيلوواطات أكثر." if ar else
+                         " That is expected: it is the largest consumer, so a small percentage error means more kilowatts.")
+            out.append(line)
+    return out
+
+
+def _story_overview(plan: Plan, data: ProjectData) -> List[str]:
+    ar = plan.arabic
+    r = data.readings
+    days = (data.last.normalize() - data.first.normalize()).days + 1
+    total = r["energy"].sum()
+    out = [(f"تغطي البيانات الفترة من {_hdate(data.first, ar, False)} إلى {_hdate(data.last, ar, False)} ({days:,} يوماً)، "
+            f"بقراءة كل ساعة لثلاثة مباني: الإدارة (B001) والمختبرات (B002) والقاعات الدراسية (B003) — "
+            f"أي {len(r):,} قراءة." if ar else
+            f"The data covers {_hdate(data.first, ar, False)} to {_hdate(data.last, ar, False)} ({days:,} days), "
+            f"with a reading every hour for three buildings: Administration (B001), Labs (B002) and Classrooms (B003) — "
+            f"{len(r):,} readings in all.")]
+    years = r.groupby(r["timestamp"].dt.year)["energy"].sum()
+    ys = [f"{_hn(v, 'kWh', ar)} {'في' if ar else 'in'} {y}" for y, v in years.items()]
+    line = (f"خلال هذه الفترة استهلك الحرم حوالي **{_hn(total, 'kWh', ar)}**: {_join_ar(ys)}" if ar else
+            f"Over that time the campus used about **{_hn(total, 'kWh', ar)}**: {_join_en(ys)}")
+    if len(years) == 2 and years.iloc[0]:
+        diff = (years.iloc[1] - years.iloc[0]) / years.iloc[0] * 100
+        line += (f"، أي أن السنة الثانية كانت {_change_word(diff, ar)}" if ar else
+                 f", so the second year was {_change_word(diff, ar)}")
+    out.append(line + ".")
+    bt = r.groupby("building_id")["energy"].sum().sort_values(ascending=False)
+    out.append((f"{_hbuilding(bt.index[0], ar)} وحده مسؤول عن حوالي {_hpct(bt.iloc[0] / total * 100)} من الاستهلاك." if ar else
+                _sent(f"{_hbuilding(bt.index[0], ar)} alone accounts for about {_hpct(bt.iloc[0] / total * 100)} of it.")))
+    out.append((f"كما تحتوي على {len(data.events):,} حدث تنبؤ و{len(data.anomalies)} حالات شذوذ موسومة "
+                f"و{len(data.verification):,} إجراء تم التحقق من نتائجه. المصدر: Building Data Genome 2 (موقع Robin)." if ar else
+                f"It also holds {len(data.events):,} prediction events, {len(data.anomalies)} labelled anomalies and "
+                f"{len(data.verification):,} verified actions. Source: Building Data Genome 2 (Robin site)."))
+    return out
+
+
+STORIES = {"summary": _story_summary, "rank": _story_rank, "events": _story_events, "actions": _story_actions,
+           "forecast": _story_forecast, "overview": _story_overview}
+
+
+# =========================================================
 # PUBLIC API
 # =========================================================
 
@@ -1063,8 +1781,14 @@ def answer(question: str, data: ProjectData = project_data) -> Optional[Dict[str
     if plan.notes and not plan.periods:
         msg = (f"لا توجد بيانات للفترة المطلوبة ({', '.join(plan.notes)}). البيانات المتوفرة تغطي {rng} فقط." if ar else
                f"There is no data for {', '.join(plan.notes)}. The dataset covers {rng} only.")
-        return {"intent": "out_of_range", "answer": msg, "facts": [msg], "source": _source(plan, data, [msg]),
-                "plan": _plan_dict(plan)}
+        human = (f"لا توجد بيانات لهذه الفترة ({', '.join(plan.notes)}).\n"
+                 f"البيانات المتوفرة تبدأ في {_hdate(data.first, ar, False)} وتنتهي في {_hdate(data.last, ar, False)}، "
+                 f"فجرّب السؤال عن تاريخ ضمن هذه الفترة، مثلاً: «كم كان استهلاك الطاقة يوم 5/7/2016؟»" if ar else
+                 f"There is no data for {', '.join(plan.notes)}.\n"
+                 f"The dataset starts on {_hdate(data.first, ar, False)} and ends on {_hdate(data.last, ar, False)}, "
+                 f"so try a date inside that range — for example, \"What was the energy consumption on 5 July 2016?\"")
+        return {"intent": "out_of_range", "answer": human, "headline": msg, "facts": [msg],
+                "source": _source(plan, data, [msg]), "plan": _plan_dict(plan)}
 
     if plan.intent == "relative":
         last_day = _day_period(data.last.normalize())
@@ -1075,23 +1799,38 @@ def answer(question: str, data: ProjectData = project_data) -> Optional[Dict[str
                 f"Note: the dataset is historical ({rng}), so there is no \"today\" or \"yesterday\" in it. "
                 f"These are the figures for the last available day.")
         result["headline"].insert(0, note)
+        story = [("ملاحظة: البيانات تاريخية (من 2016 إلى 2017)، لذلك لا يوجد فيها «اليوم» أو «أمس». "
+                  "هذه أرقام آخر يوم متوفر:" if ar else
+                  "Note: the data is historical (2016 to 2017), so there is no \"today\" or \"yesterday\" in it. "
+                  "Here are the figures for the last day available:")]
+        story += _safe_story(plan, data)
     else:
         result = {"summary": _summary, "rank": _rank, "events": _events, "actions": _actions,
                   "forecast": _forecast, "overview": _overview}[plan.intent](plan, data)
+        story = _safe_story(plan, data)
 
     if plan.notes:
         result["facts"].append((f"خارج نطاق البيانات ({rng}): {', '.join(plan.notes)}") if ar else
                                (f"Outside the dataset ({rng}): {', '.join(plan.notes)}"))
     headline = result["headline"]
-    text = ("\n".join(headline) if headline else
-            ("لم أجد بيانات مطابقة." if ar else "No matching data found."))
+    short = "\n".join(headline)
+    text = ("\n".join(story) if story else short) or ("لم أجد بيانات مطابقة." if ar else "No matching data found.")
     return {
         "intent": plan.intent,
-        "answer": text,
+        "answer": text,             # plain-language answer, shown first
+        "headline": short,          # the exact one-line result(s)
         "facts": result["facts"],
         "source": _source(plan, data, headline or result["facts"][:2]),
         "plan": _plan_dict(plan),
     }
+
+
+def _safe_story(plan: Plan, data: ProjectData) -> List[str]:
+    """Plain-language paragraphs; falls back to the one-line headline if anything goes wrong."""
+    try:
+        return [x for x in STORIES[plan.intent](plan, data) if x]
+    except Exception:  # noqa: BLE001 - the exact facts are still returned
+        return []
 
 
 def _plan_dict(plan: Plan) -> Dict[str, Any]:

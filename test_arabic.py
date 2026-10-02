@@ -22,7 +22,10 @@ results = []
 def check(q, mode, must=(), doc=None):
     r = rag_service.query(q)
     ans = r["answer"]
-    ok = r["mode"] == mode and bool(AR.search(ans)) and all(m in ans for m in must)
+    # Exact figures live in the details (headline + facts); the answer rounds them for reading.
+    d = r.get("data") or {}
+    full = "\n".join([ans, d.get("headline", ""), *d.get("facts", [])])
+    ok = r["mode"] == mode and bool(AR.search(ans)) and all(m in full for m in must)
     if doc:
         ok = ok and any(doc in (s.get("document") or "") for s in r["sources"])
     results.append(ok)

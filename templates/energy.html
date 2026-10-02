@@ -238,33 +238,21 @@
   </section>
 
   <!-- Historical Events & Incidents at Timestamp -->
-  <section class="two-col" style="margin-top: 24px;">
-    <article class="panel">
-      <div class="panel-head">
-        <div>
-          <div class="panel-kicker">RECORDED INCIDENTS & ANOMALIES</div>
-          <h3>Database Events at Selected Date</h3>
-        </div>
+<section class="two-col" style="margin-top: 24px;">
+  <article class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">RECORDED INCIDENTS & ANOMALIES</div>
+        <h3>Database Events at Selected Date</h3>
       </div>
-      <div id="hist-events-list" class="list">
-        <div class="empty-state">Select a timestamp to inspect recorded incidents.</div>
-      </div>
-    </article>
+    </div>
 
-    <article class="panel">
-      <div class="panel-head">
-        <div>
-          <div class="panel-kicker">ENVIRONMENTAL CONDITIONS</div>
-          <h3>Historical Weather Record</h3>
-        </div>
+    <div id="hist-events-list" class="list">
+      <div class="empty-state">
+        Select a timestamp to inspect recorded incidents.
       </div>
-      <div class="health-list" id="hist-weather-details">
-        <div class="health-row"><span>Temperature</span><b id="hist-temp">—</b></div>
-        <div class="health-row"><span>Relative Humidity</span><b id="hist-rh">—</b></div>
-        <div class="health-row"><span>Solar Irradiance</span><b id="hist-irradiance">—</b></div>
-        <div class="health-row"><span>Data Source</span><b>Open-Meteo Historical Archive</b></div>
-      </div>
-    </article>
-  </section>
+    </div>
+  </article>
+</section>
 </div>
 {% endblock %}

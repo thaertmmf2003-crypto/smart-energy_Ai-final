@@ -30,6 +30,11 @@ def check(label, cond, detail=""):
     print(f"[{'PASS' if cond else 'FAIL'}]  {label}" + (f"\n        {detail}" if detail and not cond else ""))
 
 
+def full(a):
+    """The plain-language answer plus the exact figures behind it (headline + facts)."""
+    return "\n".join([a["answer"], a.get("headline", ""), *a["facts"]])
+
+
 def num(text, value, digits=1):
     """True when `value`, formatted like the answers, appears in `text`."""
     return f"{value:,.{digits}f}" in text
@@ -65,23 +70,23 @@ for q, d, b in [
 ]:
     a = data_qa.answer(q)
     exp = day(energy, d, b=b)
-    check(f"{q}  →  {exp:,.1f} kWh", a is not None and num(a["answer"], exp), a and a["answer"])
+    check(f"{q}  →  {exp:,.1f} kWh", a is not None and num(full(a), exp), a and a["answer"])
 
 print("\n--- single hour ---")
 a = data_qa.answer("What was the load at 16:00 on 2016-06-10")
 exp = energy[energy["timestamp"] == "2016-06-10 16:00:00"]["energy"].sum()
-check(f"campus load 2016-06-10 16:00 = {exp:,.1f}", a and num(a["answer"], exp), a and a["answer"])
+check(f"campus load 2016-06-10 16:00 = {exp:,.1f}", a and num(full(a), exp), a and a["answer"])
 a = data_qa.answer("What was the solar generation of B001 on 15/3/2017 at 2 pm?")
 exp = solar[(solar["timestamp"] == "2017-03-15 14:00:00") & (solar["building_id"] == "B001")]["solar_generation_kw"].sum()
-check(f"B001 solar 2017-03-15 14:00 = {exp:,.1f}", a and num(a["answer"], exp), a and a["answer"])
+check(f"B001 solar 2017-03-15 14:00 = {exp:,.1f}", a and num(full(a), exp), a and a["answer"])
 
 print("\n--- month, year, range ---")
 a = data_qa.answer("How much did the Labs consume in July 2017?")
 x = energy[(energy["timestamp"].dt.strftime("%Y-%m") == "2017-07") & (energy["building_id"] == "B002")]["energy"].sum()
-check(f"Labs July 2017 = {x:,.1f}", a and num(a["answer"], x), a and a["answer"])
+check(f"Labs July 2017 = {x:,.1f}", a and num(full(a), x), a and a["answer"])
 a = data_qa.answer("consumption between 2016-07-01 and 2016-07-07")
 x = energy[(energy["timestamp"] >= "2016-07-01") & (energy["timestamp"] < "2016-07-08")]["energy"].sum()
-check(f"range 1-7 July 2016 = {x:,.1f}", a and num(a["answer"], x), a and a["answer"])
+check(f"range 1-7 July 2016 = {x:,.1f}", a and num(full(a), x), a and a["answer"])
 
 print("\n--- rankings ---")
 daily = energy.groupby(energy["timestamp"].dt.date)["energy"].sum()
@@ -89,23 +94,31 @@ d2017 = daily[[d.year == 2017 for d in daily.index]]
 top = d2017.idxmax()
 for q in ["Which day had the highest consumption in 2017?", "أي يوم كان فيه أعلى استهلاك في 2017؟"]:
     a = data_qa.answer(q)
-    check(f"{q}  →  {top}", a and str(top) in a["answer"] and num(a["answer"], d2017.max()), a and a["answer"])
+    check(f"{q}  →  {top}", a and str(top) in full(a) and num(full(a), d2017.max()), a and a["answer"])
 low = d2017.idxmin()
 a = data_qa.answer("Which day had the lowest consumption in 2017?")
-check(f"lowest day 2017 → {low}", a and str(low) in a["answer"], a and a["answer"])
+check(f"lowest day 2017 → {low}", a and str(low) in full(a), a and a["answer"])
 b = energy[energy["timestamp"].dt.year == 2017].groupby("building_id")["energy"].sum().idxmax()
 a = data_qa.answer("Which building consumed the most energy in 2017?")
-check(f"top building 2017 → {b}", a and b in a["answer"], a and a["answer"])
+check(f"top building 2017 → {b}", a and b in full(a), a and a["answer"])
 
 print("\n--- events and actions ---")
 a = data_qa.answer("Were there any anomalies on 1 July 2016?")
 check("anomaly on 2016-07-01 found", a and "ENERGY_ANOMALY" in " ".join(a["facts"]))
 n = int((events["timestamp"].dt.strftime("%Y-%m") == "2017-08").sum())
 a = data_qa.answer("How many events were there in August 2017?")
-check(f"events in August 2017 = {n}", a and re.search(rf"\b{n}\b", a["answer"]) is not None, a and a["answer"])
+check(f"events in August 2017 = {n}", a and re.search(rf"\b{n}\b", full(a)) is not None, a and a["answer"])
 rate = (ver["verification_status"] == "SUCCESS").mean() * 100
 a = data_qa.answer("What was the action success rate?")
-check(f"success rate = {rate:.1f}%", a and f"{rate:.1f}%" in a["answer"], a and a["answer"])
+check(f"success rate = {rate:.1f}%", a and f"{rate:.1f}%" in full(a), a and a["answer"])
+
+print("\n--- plain-language answers ---")
+a = data_qa.answer("What was the energy consumption on 2016-07-01?")
+check("friendly date and clock time", a and "Friday 1 July 2016" in a["answer"] and "4 pm" in a["answer"], a and a["answer"])
+check("rounded key figure in bold", a and "**8,802 kWh**" in a["answer"], a and a["answer"])
+a = data_qa.answer("كم كان استهلاك الطاقة يوم 5/7/2016؟")
+check("Arabic friendly date", a and "الثلاثاء 5 تموز 2016" in a["answer"] and "الساعة 3 عصراً" in a["answer"], a and a["answer"])
+check("answer is several short paragraphs", a and a["answer"].count("\n") >= 3, a and a["answer"])
 
 print("\n--- boundaries ---")
 a = data_qa.answer("What was the energy consumption on 2020-01-01?")
