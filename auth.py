@@ -168,6 +168,14 @@ AUTH_MESSAGES = {
         "en": "You cannot delete your own logged-in account.",
         "ar": "لا يمكنك حذف حسابك المسجل حالياً.",
     },
+    "last_admin": {
+        "en": "This is the last active admin. Make another user admin first.",
+        "ar": "هذا آخر مسؤول نشط. اجعل مستخدماً آخر مسؤولاً أولاً.",
+    },
+    "invalid_role": {
+        "en": "Invalid role.",
+        "ar": "الدور غير صالح.",
+    },
     "cannot_disable_self": {
         "en": "You cannot deactivate your own account.",
         "ar": "لا يمكنك تجميد حسابك الخاص.",
@@ -945,6 +953,17 @@ def logout():
 # ADMIN USER MANAGEMENT ROUTES
 # =========================================================
 
+VALID_ROLES = {"admin", "manager", "analyst", "user"}
+
+
+def _is_last_admin(user_id: int) -> bool:
+    """True when this user is an active admin and no other active admin exists."""
+    target = database.get_user_by_id(user_id)
+    if not target or target.get("role") != "admin" or not target.get("is_active"):
+        return False
+    return database.count_other_active_admins(user_id) == 0
+
+
 @auth_bp.post("/admin/users/create")
 @login_required
 @admin_required
@@ -954,6 +973,9 @@ def admin_create_user():
     email = (request.form.get("email") or "").strip().lower()
     password = (request.form.get("password") or "").strip()
     role = (request.form.get("role") or "user").strip().lower()
+    if role not in VALID_ROLES:
+        flash_auth("invalid_role", "danger")
+        return redirect(url_for("pages.admin"))
 
     if not username or not email or not password:
         flash_auth("all_fields_required", "danger")
@@ -974,7 +996,7 @@ def admin_create_user():
     can_manage = 1 if request.form.get("can_manage_users") else 0
     can_hvac = 1 if request.form.get("can_control_hvac") else 0
     can_approve = 1 if request.form.get("can_approve_actions") else 0
-    can_analytics = 1 if request.form.get("can_view_analytics") else 1
+    can_analytics = 1 if request.form.get("can_view_analytics") else 0
 
     password_hash = generate_password_hash(password)
     res = database.create_user(
@@ -1004,6 +1026,12 @@ def admin_create_user():
 def admin_update_role(user_id: int):
     """Change a user's role and automatically synchronize permissions."""
     role = (request.form.get("role") or "user").strip().lower()
+    if role not in VALID_ROLES:
+        flash_auth("invalid_role", "danger")
+        return redirect(url_for("pages.admin"))
+    if role != "admin" and _is_last_admin(user_id):
+        flash_auth("last_admin", "danger")
+        return redirect(url_for("pages.admin"))
     res = database.update_user_role(user_id, role, sync_permissions=True)
     if res.get("success"):
         flash_auth("user_updated", "success")
@@ -1041,6 +1069,11 @@ def admin_toggle_status(user_id: int):
         flash_auth("cannot_disable_self", "danger")
         return redirect(url_for("pages.admin"))
 
+    target = database.get_user_by_id(user_id)
+    if target and target.get("is_active") and _is_last_admin(user_id):
+        flash_auth("last_admin", "danger")
+        return redirect(url_for("pages.admin"))
+
     res = database.toggle_user_active(user_id)
     if res.get("success"):
         flash_auth("user_updated", "success")
@@ -1060,6 +1093,10 @@ def admin_delete_user(user_id: int):
     current_u = get_current_user()
     if current_u and current_u["id"] == user_id:
         flash_auth("cannot_delete_self", "danger")
+        return redirect(url_for("pages.admin"))
+
+    if _is_last_admin(user_id):
+        flash_auth("last_admin", "danger")
         return redirect(url_for("pages.admin"))
 
     res = database.delete_user(user_id)

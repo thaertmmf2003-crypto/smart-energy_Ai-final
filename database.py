@@ -586,6 +586,16 @@ def update_user_permissions(user_id: int, permissions: Dict[str, Any], db_path=N
         return {"success": False, "error": str(e)}
 
 
+def count_other_active_admins(user_id: int, db_path=None) -> int:
+    """How many active admins exist besides this user (guards the last admin)."""
+    with get_connection(db_path) as conn:
+        row = conn.execute(
+            "SELECT COUNT(*) AS n FROM users WHERE role = 'admin' AND is_active = 1 AND id != ?;",
+            (user_id,),
+        ).fetchone()
+        return int(row["n"])
+
+
 def toggle_user_active(user_id: int, db_path=None) -> Dict[str, Any]:
     """تجميد الحساب أو إعادة تنشيطه."""
     try:

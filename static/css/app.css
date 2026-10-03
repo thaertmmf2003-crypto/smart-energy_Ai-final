@@ -2053,3 +2053,48 @@ details.rag-data li.sub{padding-inline-start:18px}
 .twin3d-onmap b.is-battery{border-color:#3ee07f}
 .twin3d-onmap b.is-ev{border-color:#40c4ff}
 .twin3d-onmap b.is-hvac{border-color:#2a8cff}
+
+/* =========================================================
+   LIGHT MODE: sidebar + topbar wear the theme colour.
+   Same gradient as the hero card (--hero-a/b/c), so they follow
+   whichever colour theme is picked. Text inside switches to light.
+   ========================================================= */
+html[data-theme="light"] .sidebar{
+  background:
+    radial-gradient(circle at 0% 0%, var(--hero-glow), transparent 22rem),
+    linear-gradient(180deg, var(--hero-a) 0%, var(--hero-b) 62%, var(--hero-c) 100%);
+  border-right:1px solid color-mix(in srgb, var(--hero-a) 70%, #000);
+  --cream:#F7F4EE; --muted:rgba(255,255,255,.74); --muted-2:rgba(255,255,255,.56);
+  --line:rgba(255,255,255,.13); --accent:var(--hero-kicker); --accent-bg:rgba(255,255,255,.12);
+  --gold:var(--hero-kicker); --gold-soft:#FFFFFF; --gold-dim:rgba(255,255,255,.08);
+  --line-gold:color-mix(in srgb, var(--hero-kicker) 40%, transparent);
+  --panel:rgba(255,255,255,.07); --panel-3:rgba(255,255,255,.1);
+  color:var(--cream);
+}
+html[data-theme="light"] .sidebar .brand-name{color:#FFFFFF}
+html[data-theme="light"] .sidebar .brand-sub,
+html[data-theme="light"] .sidebar .section-label{color:var(--hero-kicker)}
+html[data-theme="light"] .sidebar .brand-mark{background:rgba(255,255,255,.14);color:#FFFFFF;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+html[data-theme="light"] .sidebar .nav-item{color:rgba(255,255,255,.8);border-color:transparent}
+html[data-theme="light"] .sidebar .nav-item:hover{background:rgba(255,255,255,.09);color:#FFFFFF}
+html[data-theme="light"] .sidebar .nav-item.active{background:rgba(255,255,255,.14);color:#FFFFFF;border-color:rgba(255,255,255,.18);box-shadow:inset 3px 0 0 var(--hero-kicker)}
+html[dir="rtl"][data-theme="light"] .sidebar .nav-item.active{box-shadow:inset -3px 0 0 var(--hero-kicker)}
+html[data-theme="light"] .sidebar .agent-card{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);box-shadow:none}
+
+html[data-theme="light"] .topbar{
+  background:
+    radial-gradient(circle at 85% 0%, var(--hero-glow), transparent 26rem),
+    linear-gradient(100deg, var(--hero-a) 0%, var(--hero-b) 55%, var(--hero-c) 100%);
+  border-bottom:1px solid color-mix(in srgb, var(--hero-a) 70%, #000);
+  backdrop-filter:none;
+}
+html[data-theme="light"] .topbar h1{color:#FFFFFF}
+html[data-theme="light"] .topbar .eyebrow{color:var(--hero-kicker)}
+html[data-theme="light"] .topbar .building-picker > span{color:rgba(255,255,255,.72)}
+html[data-theme="light"] .topbar .mobile-menu{color:#FFFFFF}
+html[data-theme="light"] .topbar .system-pill{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#FFFFFF}
+html[data-theme="light"] .sidebar .nav-live,
+html[data-theme="light"] .sidebar .agent-card-top{color:#7EE2A8}
+html[data-theme="light"] .sidebar .agent-title{color:#FFFFFF}
+html[data-theme="light"] .sidebar .agent-mode{color:rgba(255,255,255,.62)}
+html[data-theme="light"] .topbar .building-picker span{color:rgba(255,255,255,.75)}
